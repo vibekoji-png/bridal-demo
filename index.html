@@ -1,0 +1,830 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<style>*,*::before,*::after{box-sizing:border-box}body{margin:0}img{max-width:100%}[hidden]{display:none!important}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+<title>ブライダルチーム進行表</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+/* Layout: 1カラムの提案書。①工程を登録 → ②スケジュール表がその場で変わる、を実際に触れる見本で見せる */
+:root{
+  --bg:#fbf9fa; --surface:#ffffff; --ink:#2a2430; --muted:#6c6370; --line:#e7e0e5; --sunk:#f3eff2;
+  --accent:#8a3a5c; --accent-soft:#f5e8ee;
+  --safe:#2d6db5; --safe-soft:#e3edf9; --mid:#a8740a; --mid-soft:#fbf0d6; --risk:#c2362b; --risk-soft:#fbe4e1;
+  --none:#3b3440; --none-soft:#e2dde3; --done:#3f7a5e; --done-soft:#e3f0e8;
+  --chat:#c9d6e6; --bubble:#ffffff; --bubble-ink:#1d1d1d;
+  --f-display:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif;
+  --f-body:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#19161b; --surface:#221e25; --ink:#ece6ea; --muted:#a79fa8; --line:#3a333d; --sunk:#2a252d;
+  --accent:#e598b8; --accent-soft:#3a2430;
+  --safe:#7fb2ee; --safe-soft:#1d2b3d; --mid:#e8bd5c; --mid-soft:#382c14; --risk:#f28b80; --risk-soft:#3d1f1c;
+  --none:#d9d2db; --none-soft:#3a343c; --done:#8fcfae; --done-soft:#1f3229;
+  --chat:#2b3442; --bubble:#3a3f48; --bubble-ink:#f1f1f1; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#19161b; --surface:#221e25; --ink:#ece6ea; --muted:#a79fa8; --line:#3a333d; --sunk:#2a252d;
+  --accent:#e598b8; --accent-soft:#3a2430;
+  --safe:#7fb2ee; --safe-soft:#1d2b3d; --mid:#e8bd5c; --mid-soft:#382c14; --risk:#f28b80; --risk-soft:#3d1f1c;
+  --none:#d9d2db; --none-soft:#3a343c; --done:#8fcfae; --done-soft:#1f3229;
+  --chat:#2b3442; --bubble:#3a3f48; --bubble-ink:#f1f1f1; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15.5px;line-height:1.8;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:960px;margin:0 auto;padding-block:48px 72px;display:flex;flex-direction:column;gap:60px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;line-height:1.4;margin:0}
+h1{font-size:clamp(27px,4.6vw,40px)}
+h2{font-size:24px;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}
+h2 small{font-family:var(--f-body);font-size:12px;letter-spacing:.12em;color:var(--accent);font-weight:700}
+h3{font-size:17px;display:flex;align-items:center;gap:10px}
+h3 .n{width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--bg);display:grid;place-items:center;font-size:14px;flex:none}
+p{margin:0;max-width:68ch}
+section{display:flex;flex-direction:column;gap:18px}
+.muted{color:var(--muted);font-size:13.5px}
+.eyebrow{font-size:12px;letter-spacing:.14em;color:var(--accent);font-weight:700}
+header{display:flex;flex-direction:column;gap:14px;border-bottom:1px solid var(--line);padding-bottom:28px}
+.lead{font-size:17px}
+.tag{display:inline-block;font-size:12px;padding:2px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:700;white-space:nowrap;font-family:var(--f-body)}
+.tag.ok{background:var(--done-soft);color:var(--done)}
+.two{display:grid;grid-template-columns:1.05fr .95fr;gap:28px;align-items:start}
+.two>*{min-width:0}
+@media (max-width:760px){.two{grid-template-columns:1fr}}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* 状態の色 */
+.st{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:2px 10px;border-radius:999px;white-space:nowrap}
+.st::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+.st.safe{color:var(--safe);background:var(--safe-soft)}
+.st.mid{color:var(--mid);background:var(--mid-soft)}
+.st.risk{color:var(--risk);background:var(--risk-soft)}
+.st.none{color:var(--none);background:var(--none-soft)}
+.st.done{color:var(--done);background:var(--done-soft)}
+
+/* 仕組みの鎖 */
+.chain{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px}
+.chain div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;gap:2px;flex:1 1 140px;min-width:0}
+.chain b{font-size:14.5px}
+.chain span{font-size:12.5px;color:var(--muted);line-height:1.6}
+.chain div.end{border-color:var(--accent)}
+.chain i{font-style:normal;align-self:center;color:var(--muted)}
+@media (max-width:640px){.chain i{display:none}}
+
+/* 工程の登録 */
+.setup{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:22px}
+.step{display:flex;flex-direction:column;gap:12px}
+.cats{display:flex;flex-direction:column;gap:10px}
+.cat{display:grid;grid-template-columns:76px 1fr;gap:10px;align-items:start}
+.cat>span{font-size:12px;color:var(--muted);font-weight:700;padding-top:6px}
+@media (max-width:520px){.cat{grid-template-columns:1fr;gap:4px}.cat>span{padding-top:0}}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:4px 12px;font-size:13.5px;cursor:pointer;line-height:1.6}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:700}
+.chip[aria-pressed="true"]::before{content:"✓ "}
+.addrow{display:flex;gap:8px;flex-wrap:wrap}
+.addrow input{flex:1 1 220px;min-width:0;font:inherit;font-size:14px;padding:7px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+.btn{border:1px solid var(--accent);background:var(--accent);color:var(--bg);border-radius:10px;padding:7px 16px;font-size:14px;font-weight:700;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.editor{display:flex;flex-direction:column;gap:8px}
+.ed{border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;grid-template-columns:minmax(150px,1.1fr) 2fr auto;gap:10px 16px;align-items:center;background:var(--bg)}
+.ed>*{min-width:0}
+.ed .nm{font-weight:700;font-size:14.5px;line-height:1.4}
+.ed .nm small{display:block;font-weight:400;font-size:11.5px;color:var(--muted)}
+.ed .fields{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;font-size:13px;color:var(--muted)}
+.ed .fields label{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.ed input[type=number]{width:58px;font:inherit;font-size:13.5px;padding:3px 6px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font-variant-numeric:tabular-nums}
+.ed select{font:inherit;font-size:13px;padding:3px 6px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);max-width:170px}
+.who{display:flex;flex-wrap:wrap;gap:4px}
+.who button{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:1px 8px;font-size:12px;cursor:pointer;color:var(--muted)}
+.who button[aria-pressed="true"]{border-color:var(--ink);color:var(--ink);font-weight:700;background:var(--sunk)}
+.rm{border:0;background:transparent;color:var(--muted);cursor:pointer;font-size:12.5px;padding:4px 6px;border-radius:6px;white-space:nowrap}
+.rm:hover{color:var(--risk)}
+@media (max-width:700px){.ed{grid-template-columns:1fr auto}.ed .fields{grid-column:1/-1;grid-row:2}}
+.warn{font-size:12px;color:var(--risk);font-weight:700}
+
+/* 工程マップ */
+.howto{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:4px 18px;font-size:13.5px}
+.howto li{padding-left:14px;position:relative}
+.howto li::before{content:"";position:absolute;left:0;top:.7em;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+details.fine summary{cursor:pointer;list-style:none}
+details.fine summary::-webkit-details-marker{display:none}
+details.fine summary h3::after{content:"＋ 開く";font-family:var(--f-body);font-size:12px;color:var(--accent);font-weight:700;margin-left:6px}
+details.fine[open] summary h3::after{content:"− 閉じる"}
+details.fine[open] summary{margin-bottom:12px}
+#tline{position:relative;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:12px;padding:4px 14px 10px;background:var(--bg)}
+.tl-row{display:grid;grid-template-columns:200px 1fr;gap:4px 12px;align-items:center;padding:7px 4px;border-bottom:1px dashed var(--line);border-radius:8px}
+.tl-row:last-of-type{border-bottom:0}
+.tl-row>*{min-width:0}
+.tl-row.tl-target{background:var(--accent-soft)}
+.tl-name{font-size:13px;font-weight:700;line-height:1.35}
+.tl-name small{display:block;font-weight:400;font-size:11px;color:var(--muted)}
+.tl-name small.bad{color:var(--risk);font-weight:700}
+.tl-meta{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-top:4px;font-weight:400}
+.av-t{width:21px;height:21px;border-radius:50%;border:1px solid var(--line);background:var(--surface);font-size:10.5px;font-weight:700;color:var(--muted);cursor:pointer;padding:0;display:inline-grid;place-items:center}
+.av-t[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tl-chip{border:1px solid var(--line);background:var(--surface);border-radius:6px;font-size:11px;padding:0 6px;cursor:pointer;color:var(--muted);line-height:19px}
+.tl-link{border:1px dashed var(--accent);color:var(--accent);background:transparent;border-radius:6px;font-size:11px;padding:0 6px;cursor:grab;touch-action:none;line-height:19px;font-weight:700}
+.tl-prev{font-size:11px;color:var(--muted);display:inline-flex;align-items:center}
+.tl-prev button{border:0;background:none;color:var(--muted);cursor:pointer;padding:0 3px;font-size:12px}
+.tl-pad{padding:0 30px}
+.tl-axis{position:relative;height:40px;font-size:10.5px;color:var(--muted);font-variant-numeric:tabular-nums;line-height:1.3}
+.tl-axis span{position:absolute;bottom:4px;transform:translateX(-50%);text-align:center;white-space:nowrap}
+.tl-axis span b{display:block;color:var(--ink);font-weight:700}
+.tl-axis span.wed b{color:var(--accent)}
+.tl-track{position:relative;height:38px;border-radius:8px;background:var(--sunk);touch-action:none;cursor:pointer;user-select:none;-webkit-user-select:none}
+.tl-past{position:absolute;top:0;bottom:0;left:0;border-radius:8px 0 0 8px;background:repeating-linear-gradient(135deg,var(--line) 0 3px,transparent 3px 7px)}
+.tl-now{position:absolute;top:-4px;bottom:-4px;width:2px;margin-left:-1px;background:var(--ink);opacity:.5}
+.tl-tick{position:absolute;top:0;bottom:0;width:1px;background:var(--line)}
+.tl-av{position:absolute;bottom:3px;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--ink);opacity:.35}
+.tl-bar{position:absolute;top:6px;height:20px;border-radius:6px;border:1.5px solid;cursor:grab;touch-action:none;min-width:6px}
+.tl-bar:active{cursor:grabbing}
+.tl-bar.safe{background:var(--safe-soft);border-color:var(--safe);color:var(--safe)}
+.tl-bar.mid{background:var(--mid-soft);border-color:var(--mid);color:var(--mid)}
+.tl-bar.risk{background:var(--risk-soft);border-color:var(--risk);color:var(--risk)}
+.tl-bar.none{background:var(--none-soft);border-color:var(--none);color:var(--none)}
+.tl-bar.done{background:var(--done-soft);border-color:var(--done);color:var(--done)}
+.tl-bar.bad{background:transparent;border:2px dashed var(--risk);color:var(--risk)}
+.tl-s{position:absolute;left:-8px;top:-6px;bottom:-6px;width:16px;cursor:ew-resize;display:grid;place-items:center}
+.tl-s::before{content:"";width:5px;height:16px;border-radius:3px;background:currentColor}
+.tl-h{position:absolute;top:16px;transform:translate(-50%,-50%);min-width:46px;height:26px;padding:0 8px;border-radius:999px;font-size:12px;font-weight:700;color:var(--bg);border:2px solid var(--surface);white-space:nowrap;cursor:ew-resize;display:grid;place-items:center;box-shadow:0 1px 3px rgba(0,0,0,.18);font-variant-numeric:tabular-nums;z-index:2}
+.tl-h.safe{background:var(--safe)} .tl-h.mid{background:var(--mid)} .tl-h.risk{background:var(--risk)} .tl-h.none{background:var(--none)} .tl-h.done{background:var(--done)}
+.tl-svg{position:absolute;left:0;top:0;pointer-events:none;color:var(--muted);overflow:visible;z-index:1}
+.tl-svg path{fill:none;stroke:currentColor;stroke-width:1.4;opacity:.35}
+.tl-svg path.hl{stroke:var(--accent);opacity:1;stroke-width:2}
+.tl-svg path.tmp{stroke:var(--accent);stroke-dasharray:5 4;stroke-width:2}
+@media (max-width:600px){.tl-row{grid-template-columns:1fr}.tl-pad{padding:0 24px}.tl-axis span.m-hide{display:none}}
+
+/* スケジュール表（横棒） */
+.board-head{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:transparent;padding:6px 12px;cursor:pointer;font-size:13px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg);font-weight:700}
+.controls{display:flex;flex-wrap:wrap;gap:8px}
+.summary{display:flex;flex-wrap:wrap;gap:8px}
+.focus{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--risk);border-radius:0 12px 12px 0;padding:12px 16px;font-size:14.5px}
+.focus.calm{border-left-color:var(--safe)}
+.gantt{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:6px 16px 14px}
+.axis{position:relative;height:34px;border-bottom:1px solid var(--line);font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.axis span{position:absolute;bottom:5px;transform:translateX(-50%);white-space:nowrap}
+.axis span.first{transform:none}
+.axis span.today{color:var(--ink);font-weight:700}
+.axis span.wed{color:var(--accent);font-weight:700;transform:translateX(-100%)}
+.row{padding:12px 0 10px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
+.row:last-child{border-bottom:0}
+.rtop{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}
+.rtop b{font-size:14.5px}
+.rtop .need{font-size:12px;color:var(--muted)}
+.rtop .left{margin-left:auto;font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.rtop .left strong{font-size:15px}
+.track{position:relative;height:30px;border-radius:6px;background:var(--sunk)}
+.track .wk{position:absolute;top:0;bottom:0;width:1px;background:var(--line)}
+.track .wait{position:absolute;top:9px;height:12px;background:repeating-linear-gradient(135deg,var(--line) 0 3px,transparent 3px 6px);border-radius:3px}
+.track .win{position:absolute;top:3px;bottom:3px;border-radius:6px;border:1.5px solid}
+.r-safe .win{background:var(--safe-soft);border-color:var(--safe)}
+.r-mid .win{background:var(--mid-soft);border-color:var(--mid)}
+.r-risk .win{background:var(--risk-soft);border-color:var(--risk)}
+.r-none .win{background:var(--none-soft);border-color:var(--none);border-style:dashed}
+.track .dot{position:absolute;top:50%;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%}
+.r-safe .dot{background:var(--safe)} .r-mid .dot{background:var(--mid)} .r-risk .dot{background:var(--risk)}
+.track .pin{position:absolute;top:50%;transform:translate(-50%,-50%);font-size:11px;font-weight:700;padding:1px 6px;border-radius:6px;white-space:nowrap;z-index:1}
+.pin.hold{background:var(--risk);color:var(--bg)}
+.pin.fixed{background:var(--done);color:var(--bg)}
+.track .dl{position:absolute;top:-3px;bottom:-3px;width:2px;margin-left:-1px;background:var(--ink)}
+.track .msg-in{position:absolute;inset:0;display:grid;place-items:center;font-size:12px;color:var(--muted)}
+.rsub{font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:2px 12px}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:12.5px;color:var(--muted);align-items:center}
+.legend span{display:inline-flex;gap:6px;align-items:center}
+.lg-win{width:26px;height:14px;border-radius:4px;border:1.5px solid var(--mid);background:var(--mid-soft)}
+.lg-dot{width:8px;height:8px;border-radius:50%;background:var(--mid)}
+.lg-wait{width:26px;height:10px;background:repeating-linear-gradient(135deg,var(--line) 0 3px,transparent 3px 6px)}
+.lg-dl{width:2px;height:16px;background:var(--ink)}
+
+/* 色のルール */
+.levels{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.lv{background:var(--surface);border:1px solid var(--line);border-top-width:4px;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.lv.safe{border-top-color:var(--safe)} .lv.mid{border-top-color:var(--mid)} .lv.risk{border-top-color:var(--risk)} .lv.none{border-top-color:var(--none)}
+.lv .cond{font-size:13px;color:var(--muted)}
+.lv .act{font-size:14px;border-top:1px dashed var(--line);padding-top:8px}
+
+/* LINE風モック */
+.phone{background:var(--chat);border-radius:22px;padding:14px;display:flex;flex-direction:column;gap:10px;font-size:13.5px;line-height:1.6;max-width:360px;width:100%;justify-self:center;border:1px solid var(--line)}
+.phone .room{text-align:center;font-size:12px;color:var(--bubble-ink);opacity:.7}
+.msg{display:flex;gap:8px;align-items:flex-end}
+.av{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:11px;font-weight:700;flex:none}
+.b{background:var(--bubble);color:var(--bubble-ink);padding:8px 12px;border-radius:16px;max-width:86%}
+.b strong{display:block;margin-bottom:2px}
+.b .row2{display:flex;justify-content:space-between;gap:10px}
+.b .small{font-size:12px;opacity:.75}
+.mdot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;vertical-align:1px}
+.mdot.risk{background:#d9473b} .mdot.mid{background:#d39a1e}
+.btns{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.btns span{border:1px solid currentColor;border-radius:8px;padding:2px 10px;font-size:12px;opacity:.85}
+ol.flow{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;counter-reset:s}
+ol.flow li{counter-increment:s;display:grid;grid-template-columns:44px 1fr;gap:14px;padding:12px 0;border-bottom:1px solid var(--line)}
+ol.flow li:last-child{border-bottom:0}
+ol.flow li>*{min-width:0}
+ol.flow li::before{content:counter(s);width:34px;height:34px;border-radius:50%;border:1.5px solid var(--accent);color:var(--accent);display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:16px}
+ol.flow b{display:block;font-size:15px}
+ol.flow span{font-size:13.5px;color:var(--muted)}
+
+/* ルール */
+.rules{background:var(--surface);border:1px solid var(--accent);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.rules ul{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px 22px}
+.rules li{display:flex;flex-direction:column;gap:2px}
+.rules li b{font-size:14.5px}
+.rules li span{font-size:13.5px;color:var(--muted);line-height:1.65}
+.prio{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:14px}
+.prio span{background:var(--accent-soft);color:var(--accent);border-radius:8px;padding:4px 10px;font-weight:700}
+.prio em{font-style:normal;color:var(--muted)}
+.pains{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.pain{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.pain .q{font-size:13.5px;color:var(--muted)}
+.pain .q::before{content:"いま　";font-weight:700;color:var(--risk)}
+.pain .a{font-size:14.5px;border-top:1px dashed var(--line);padding-top:10px}
+.pain .a::before{content:"これから　";font-weight:700;color:var(--done)}
+.pain b{font-size:15px}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table.std{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+.std th,.std td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.65}
+.std tr:last-child td,.std tr:last-child th{border-bottom:0}
+.std thead th{font-size:12px;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.std tbody th{font-weight:700;white-space:nowrap}
+.std tr.rec{background:var(--accent-soft)}
+.roles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.role{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.role b{font-size:14.5px}
+.role span{font-size:13px;color:var(--muted);line-height:1.6}
+.feat{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.f{border-top:2px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:4px}
+.f b{font-size:14.5px}
+.f span{font-size:13.5px;color:var(--muted);line-height:1.65}
+ol.steps{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:10px}
+.qs{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px 24px;margin:0;padding:0;list-style:none}
+.qs li{padding:8px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.note{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;font-size:13.5px;color:var(--muted)}
+footer{font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:18px;display:flex;flex-direction:column;gap:6px}
+footer a{color:var(--accent)}
+</style>
+
+<div class="wrap">
+<header>
+  <span class="eyebrow">ご提案（たたき台）· 2026年11月</span>
+  <h1>締切から逆算して、<br>必要な人がそろう日を色で見せる。</h1>
+  <p class="lead">最初にチームの「工程」を登録していただきます。よくある工程は選ぶだけ、ないものは書き足すだけ。工程ごとに「誰が必要か」「挙式の何日前までか」「何が終わってからか」を決めておけば、案件ごとのスケジュールと、締切までの余裕が自動で出ます。</p>
+  <p>本業を別に持つスタッフどうしでも、「この工程は急がないと組めなくなる」がひと目で伝わります。空きを集める、候補を出す、決める、催促する仕事はLINEのボットが引き受けます。</p>
+  <p class="muted">※ 案件の詳細はまだ伺っていないため、工程・役割・日付はすべて一般的なブライダル案件をもとにした見本です。</p>
+</header>
+
+<section>
+  <h2><small>考え方</small>工程を決めれば、日程が決まる</h2>
+  <div class="chain">
+    <div><b>工程を登録</b><span>最初に1回。選ぶ＋書き足す</span></div><i>›</i>
+    <div><b>挙式日を入力</b><span>案件ごと</span></div><i>›</i>
+    <div><b>締切と順番</b><span>工程の設定から自動で並ぶ</span></div><i>›</i>
+    <div><b>そろう日</b><span>必要な人が全員空いている日を数える</span></div><i>›</i>
+    <div class="end"><b>余裕の色</b><span>青・黄・赤・黒で知らせ、急ぐものから調整</span></div>
+  </div>
+</section>
+
+<section>
+  <h2><small>最初の設定</small>工程の登録（実際に触れます）</h2>
+  <p class="muted">責任者の方に、最初に一度だけ入力していただく画面の見本です。ここを変えると、下のスケジュール表がその場で変わります。登録した工程は「型」として保存され、次のご夫婦からはそのまま使えます。</p>
+  <div class="setup">
+    <div class="step">
+      <h3><span class="n">1</span>ある工程を選ぶ</h3>
+      <div class="cats" id="cats"></div>
+    </div>
+    <div class="step">
+      <h3><span class="n">2</span>ない工程を書き足す</h3>
+      <form class="addrow" id="addform">
+        <input id="addname" type="text" placeholder="例：ブーケの打合せ" aria-label="追加する工程の名前" maxlength="30">
+        <button class="btn" type="submit">追加する</button>
+      </form>
+    </div>
+    <div class="step">
+      <h3><span class="n">3</span>工程マップで、さわって決める</h3>
+      <ul class="howto">
+        <li><b>棒の右端（◯日前）</b>をドラッグ … 締切</li>
+        <li><b>棒の左端</b>をドラッグ … 始められる日</li>
+        <li><b>棒ごと</b>ドラッグ … まとめて移動</li>
+        <li><b>「つなぐ」</b>を別の工程へドラッグ … 順番（矢印）</li>
+        <li><b>顔の丸</b>をタップ … 必要な人</li>
+        <li><b>所要</b>をタップ … 時間の切り替え</li>
+      </ul>
+      <p class="muted">棒の色は、この案件での余裕の色です。棒の下の薄い点は「その工程に必要な人が全員空いている日」なので、点が多いところに棒を置くほど青に近づきます。前の工程より前に置くと、赤い点線で知らせます。</p>
+      <div class="tline" id="tline"></div>
+    </div>
+    <details class="step fine">
+      <summary><h3><span class="n">4</span>数字で細かく直す（必要なときだけ）</h3></summary>
+      <div class="editor" id="editor"></div>
+    </details>
+  </div>
+</section>
+
+<section>
+  <div class="board-head">
+    <h2><small>案件ごとの画面</small>スケジュール表</h2>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="並べ方">
+        <button type="button" id="sort-urgent" aria-pressed="true">急ぐ順</button>
+        <button type="button" id="sort-order" aria-pressed="false">工程の順</button>
+      </div>
+      <div class="seg" role="group" aria-label="見本の状況">
+        <button type="button" id="sc-normal" aria-pressed="true">予定どおり</button>
+        <button type="button" id="sc-slip" aria-pressed="false">仮押さえの日がだめになったら</button>
+      </div>
+    </div>
+  </div>
+  <p class="muted">◯◯様（挙式 2027年1月23日）。今日を11月16日とした例です。</p>
+  <div class="summary" id="summary"></div>
+  <p class="focus" id="focus"></p>
+  <div class="legend">
+    <span><span class="lg-win"></span>始められる日〜締切</span>
+    <span><span class="lg-dot"></span>必要な人が全員そろう日</span>
+    <span><span class="lg-dl"></span>締切</span>
+    <span><span class="lg-wait"></span>前の工程待ち</span>
+    <span><span class="pin hold" style="position:static;transform:none">仮</span>仮押さえ</span>
+    <span><span class="pin fixed" style="position:static;transform:none">✓</span>確定</span>
+  </div>
+  <div class="gantt" id="gantt"></div>
+</section>
+
+<section>
+  <h2><small>色のルール</small>余裕に応じて、調整の進め方も変わる</h2>
+  <div class="levels">
+    <div class="lv safe"><span class="st safe">青　余裕あり</span><span class="cond">締切までに全員そろう日が5日以上</span><span class="act">週1回の都合集めのあと、まとめて調整。通知は控えめ。</span></div>
+    <div class="lv mid"><span class="st mid">黄　早めに</span><span class="cond">そろう日が3〜4日</span><span class="act">候補を出して、48時間以内に回答をお願いする。</span></div>
+    <div class="lv risk"><span class="st risk">赤　急ぎ</span><span class="cond">そろう日が2日以下、または締切まで7日以内</span><span class="act">いちばん早い候補で仮押さえ。24時間以内に申し出がなければ確定。責任者にも通知。</span></div>
+    <div class="lv none"><span class="st none">黒　組めない</span><span class="cond">締切までに全員そろう日がない</span><span class="act">責任者に代わりの案を出す：代理スタッフ、オンライン参加、締切の見直し、予定を分ける。</span></div>
+  </div>
+  <p class="muted">△（時間によってはOK）の日は0.5日として数えます。何日で青・黄・赤にするかは、チームで最初に決めて変えられます。</p>
+</section>
+
+<section>
+  <h2><small>スタッフへの伝わり方</small>自分が必要な工程だけが、色つきで届く</h2>
+  <div class="two">
+    <ol class="flow">
+      <li><div><b>毎週日曜の夜に都合を回答</b><span>来週と再来週を日ごとに ○△× でタップ。30秒ほど。Googleカレンダーをつなげば自動で埋まります（予定の中身は共有されません）。</span></div></li>
+      <li><div><b>自分が必要な工程だけが届く</b><span>色の順に並びます。赤のものは「なぜ急ぐのか」（締切まであと何日、そろう日は何日だけ）も一緒に伝えます。</span></div></li>
+      <li><div><b>赤は仮押さえ、黄は48時間で回答</b><span>色ごとのルールでボットが進めます。未回答の人には個別に声をかけます。</span></div></li>
+      <li><div><b>決まったら全員に知らせる</b><span>カレンダーに登録して、表は「確定」に変わります。後ろの工程の余裕も計算し直します。</span></div></li>
+    </ol>
+    <div class="phone" aria-label="ヘアメイク担当のLINEに届く表示イメージ">
+      <div class="room">進行ボット（ヘアメイク担当あて）</div>
+      <div class="msg"><div class="av">進行</div><div class="b"><strong>あなたが必要な工程（◯◯様）</strong>
+        <div class="row2"><span><span class="mdot risk"></span>ドレス試着</span><span>締切 11/25</span></div>
+        <div class="row2"><span><span class="mdot mid"></span>リハーサルメイク</span><span>締切 12/16</span></div>
+        <div class="btns"><span>都合を答える</span></div></div></div>
+      <div class="msg"><div class="av">進行</div><div class="b"><strong><span class="mdot risk"></span>ドレス試着は急ぎです</strong>締切まであと9日。必要な3人がそろうのは<br>11/18（水）と 11/25（水）だけです。<br>→ <b>11/18（水）14:00 で仮押さえしました。</b>
+        <div class="small">都合が悪ければ 11/17 14:00 までに</div>
+        <div class="btns"><span>OK</span><span>都合が悪い</span></div></div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><small>揉めないために</small>決め方は最初にチームで合意しておく</h2>
+  <div class="rules">
+    <p>人が決めると角が立つことを、締切と色のルールに任せます。「誰かの都合で決まった」ではなく「締切から逆算するとこの日しかない」と、理由が見える形で伝えます。</p>
+    <div class="prio"><span>① ご夫婦の希望</span><em>›</em><span>② 工程の締切</span><em>›</em><span>③ 必要なスタッフの都合</span><em>›</em><span>④ いれば助かるスタッフの都合</span></div>
+    <ul>
+      <li><b>回答は締切まで非公開</b><span>先に言った人・強く言った人に引っぱられません。</span></li>
+      <li><b>色ごとに進め方が決まっている</b><span>赤は仮押さえ、黄は48時間で回答。誰かが急かさなくても進みます。</span></li>
+      <li><b>締切を過ぎたら「どこでもOK」扱い</b><span>未回答で止まらないよう、事前に合意しておきます。</span></li>
+      <li><b>譲った回数を記録</b><span>都合を合わせてくれた回数を数え、次に迷ったときはその人の希望を優先します。</span></li>
+      <li><b>変更は申請ボタンから</b><span>動かすと後ろのどの工程が何色になるかを表示し、責任者が承認します。</span></li>
+      <li><b>黒になったら責任者の出番</b><span>ボットが代わりの案を並べ、責任者は選ぶだけにします。</span></li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2><small>いまの悩みに対して</small>3つの理由と、この仕組みでの答え</h2>
+  <div class="pains">
+    <div class="pain"><b>みんな別の仕事がある</b>
+      <span class="q">本業のシフトがバラバラで、LINEで「この日どう？」を何往復もする。</span>
+      <span class="a">都合は週1回まとめて集めておく。必要な人がそろう日はボットが数える。</span></div>
+    <div class="pain"><b>声の大きい人に流される</b>
+      <span class="q">先に希望を言った人、強く言った人の都合で決まり、ほかの人が我慢する。</span>
+      <span class="a">締切と色で「急ぐ理由」が全員に見える。決め方はルールで、回答は締切まで非公開。</span></div>
+    <div class="pain"><b>まとめ役が疲れる</b>
+      <span class="q">何から決めるか、誰に催促するか、全部責任者が考えている。</span>
+      <span class="a">工程を一度登録すれば、順番と締切は自動。責任者は赤・黒と変更申請だけ見ればよい。</span></div>
+  </div>
+</section>
+
+<section>
+  <h2><small>既存の道具との違い</small>集めるだけでなく、工程と締切から決めるところまで</h2>
+  <div class="tbl"><table class="std">
+    <thead><tr><th></th><th>都合の集め方</th><th>工程・締切との連動</th><th>決め方・催促</th></tr></thead>
+    <tbody>
+      <tr><th>調整さん</th><td>○△×。登録不要で手軽</td><td>なし。候補日は人が考える</td><td>人が見て決め、人が催促する</td></tr>
+      <tr><th>TimeRex</th><td>Googleカレンダーと連携</td><td>なし。主に1対1の予約向け</td><td>空き枠から予約してもらう</td></tr>
+      <tr><th>LINEスケジュール</th><td>トーク内で○△×</td><td>なし</td><td>人が見て決める</td></tr>
+      <tr class="rec"><th>今回の仕組み <span class="tag ok">ご提案</span></th><td>週1回まとめて集める／カレンダー連携</td><td>登録した工程の締切と順番から余裕を計算し、色で表示</td><td>色ごとのルールで自動で進め、催促もボット</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2><small>チーム</small>仮に置いた5つの役割</h2>
+  <div class="roles">
+    <div class="role"><b>責任者・プロデューサー</b><span>全体進行、予算、最終判断、ご夫婦の窓口</span></div>
+    <div class="role"><b>ウェディングプランナー</b><span>打合せ、会場・進行表、各業者との調整</span></div>
+    <div class="role"><b>ヘアメイク・美容</b><span>リハーサルメイク、当日ヘアメイク、肌・ネイルの相談</span></div>
+    <div class="role"><b>衣装・着付け</b><span>ドレス・和装の選定、試着、サイズ直し、当日の着付け</span></div>
+    <div class="role"><b>フォト・映像</b><span>前撮り、当日撮影、ムービー、納品</span></div>
+  </div>
+</section>
+
+<section>
+  <h2><small>そのほかの機能</small>日程のあとに足していくもの</h2>
+  <div class="feat">
+    <div class="f"><b>工程の完了報告</b><span>ボタン1つで完了。後ろの工程が「待ち」から動き出します。</span></div>
+    <div class="f"><b>毎朝の要約</b><span>今日の予定と、赤・黒の工程だけをグループに1通。</span></div>
+    <div class="f"><b>決定事項の記録</b><span>「決定 ドレスはAライン白」と送ると案件ごとに残ります。</span></div>
+    <div class="f"><b>当日の進行表</b><span>入り時間、メイク開始、撮影ポイントを分刻みで配信。</span></div>
+    <div class="f"><b>ご夫婦の希望日</b><span>ご夫婦にもLINEで都合を聞き、優先度①として反映。</span></div>
+    <div class="f"><b>型の見直し</b><span>実際にかかった日数を記録し、「この工程はもっと早めに」を次の型に反映。</span></div>
+  </div>
+</section>
+
+<section>
+  <h2><small>作り方</small>いまのLINEのまま動かします</h2>
+  <p>LINE公式アカウント（Messaging API）でボットを作り、工程の登録・○△×の回答・スケジュール表はLINEの中で開くページ（LIFF）にします。記録はGoogleスプレッドシート、確定した予定はGoogleカレンダーへ。メンバーが新しいアプリを入れる必要はありません。</p>
+  <div class="note">以前の無料通知サービス「LINE Notify」は2025年3月に終了しています。LINE公式アカウントの無料プランは月に送れる通知数に上限があるため、青は週1回のまとめ、黄・赤だけ個別に送ります。人数・案件数によっては有料プランが必要です〔料金は要確認〕。</div>
+</section>
+
+<section>
+  <h2><small>進め方</small>工程の登録から始める</h2>
+  <ol class="steps">
+    <li><b>工程の登録</b>：上の設定画面で、責任者の方に工程を選び・書き足していただきます。迷うところは一緒に埋めます。</li>
+    <li><b>色の基準と決め方を合意</b>：青・黄・赤の日数と、決め方のルールをチームで決めます。</li>
+    <li><b>1案件で試す</b>：挙式日を入れてスケジュール表と都合集めを2〜3週間運用し、工程の日数や色の基準を調整します。</li>
+    <li><b>自動化を足す</b>：赤の仮押さえ、催促、変更申請を加えます。</li>
+  </ol>
+</section>
+
+<section>
+  <h2><small>確認したいこと</small>工程の登録のほかに伺いたい項目</h2>
+  <ul class="qs">
+    <li>スタッフの本業はシフト制か、曜日固定か</li>
+    <li>いつも揉める工程はどれか</li>
+    <li>ご夫婦の都合はどう聞いているか</li>
+    <li>同時に進む案件の数（月に何組か）</li>
+    <li>全員がGoogleアカウント・カレンダーを使っているか</li>
+    <li>費用の上限</li>
+  </ul>
+  <div class="note">お客様の情報は、名前をイニシャルと案件番号で扱います。スタッフのカレンダーは「空き／予定あり」だけを読み、予定の中身は見ません。</div>
+</section>
+
+<footer>
+  <span>参考資料</span>
+  <span><a href="https://boxil.jp/mag/?p=23612">日程調整ツール比較（BOXIL）</a> · <a href="https://saas.imitsu.jp/cate-scheduling-tool/article/l-2612">日程調整ツール比較（アイミツ）</a> · <a href="https://help.worksmobile.com/ja/use-guides/task/overview/">LINE WORKS タスク機能</a> · <a href="https://aisleplanner.com/?p=1477">Aisle Planner</a></span>
+</footer>
+</div>
+
+<script>
+(function(){
+  var DAY=86400000, TODAY=Date.UTC(2026,10,16), WED=Date.UTC(2027,0,23), SPAN=Math.round((WED-TODAY)/DAY);
+  var WD="日月火水木金土";
+  function fmt(t){var x=new Date(t);return (x.getUTCMonth()+1)+"/"+x.getUTCDate()}
+  function fmtw(t){return fmt(t)+"（"+WD[new Date(t).getUTCDay()]+"）"}
+  function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]})}
+  function wd(t){return new Date(t).getUTCDay()}
+  // スタッフの空き（本業の都合を曜日で表した見本）
+  var STAFF=[
+    {k:"lead",n:"責任者",ok:function(t){var k=fmt(t);return k!=="11/22"&&k!=="12/6"}},
+    {k:"pl",n:"プランナー",ok:function(t){return wd(t)>=2&&wd(t)<=5}},
+    {k:"hm",n:"ヘアメイク",ok:function(t){return wd(t)>=1&&wd(t)<=3}},
+    {k:"cos",n:"衣装",ok:function(t){var w=wd(t);return w===0||w===3||w===6}},
+    {k:"ph",n:"フォト",ok:function(t){return wd(t)>=1&&wd(t)<=4}}
+  ];
+  var SN={};STAFF.forEach(function(s){SN[s.k]=s});
+  var DURS=["1時間","2時間","3時間","半日","1日"];
+  // 用意しておく工程（before＝挙式の何日前まで）
+  var PRESETS=[
+    {id:"kick",cat:"打合せ",name:"キックオフ打合せ",need:["lead","pl","hm","cos","ph"],dur:"2時間",before:90,after:"",gap:0},
+    {id:"site",cat:"打合せ",name:"会場の下見",need:["lead","pl","ph"],dur:"2時間",before:45,after:"",gap:0},
+    {id:"bgm",cat:"打合せ",name:"進行・BGM打合せ",need:["pl","lead"],dur:"2時間",before:42,after:"",gap:0,fixed:Date.UTC(2026,11,1),on:1},
+    {id:"flower",cat:"打合せ",name:"装花の打合せ",need:["pl","lead"],dur:"1時間",before:30,after:"",gap:0},
+    {id:"final",cat:"打合せ",name:"最終打合せ（ご夫婦と）",need:["lead","pl"],dur:"2時間",before:14,after:"bgm",gap:14},
+    {id:"fit",cat:"衣装",name:"ドレス試着",need:["lead","cos","hm"],dur:"2時間",before:59,after:"",gap:0,on:1},
+    {id:"wafuku",cat:"衣装",name:"和装の試着",need:["lead","cos","hm"],dur:"2時間",before:45,after:"fit",gap:7},
+    {id:"size",cat:"衣装",name:"サイズ直しの確認",need:["cos"],dur:"1時間",before:35,after:"fit",gap:7,on:1},
+    {id:"image",cat:"美容",name:"ヘアメイクのイメージ共有",need:["hm","lead"],dur:"1時間",before:50,after:"",gap:0},
+    {id:"reh",cat:"美容",name:"リハーサルメイク",need:["hm","cos"],dur:"3時間",before:38,after:"fit",gap:14,on:1},
+    {id:"care",cat:"美容",name:"肌・ネイルの相談",need:["hm"],dur:"1時間",before:30,after:"",gap:0},
+    {id:"loc",cat:"撮影",name:"前撮りロケハン",need:["ph","cos"],dur:"3時間",before:49,after:"",gap:0,on:1},
+    {id:"pre",cat:"撮影",name:"前撮り",need:["ph","hm","cos"],dur:"半日",before:28,after:"reh",gap:3,on:1},
+    {id:"movie",cat:"撮影",name:"ムービー素材の受け取り",need:["ph"],dur:"1時間",before:21,after:"",gap:0},
+    {id:"read",cat:"当日準備",name:"当日進行表の読み合わせ",need:["lead","pl","hm","cos","ph"],dur:"1時間",before:10,after:"bgm",gap:14,on:1}
+  ];
+  var CATS=["打合せ","衣装","美容","撮影","当日準備"];
+  var tasks=PRESETS.filter(function(p){return p.on}).map(clone);
+  var customN=0, sortMode="urgent", scn="normal";
+  function clone(p){return {id:p.id,name:p.name,need:p.need.slice(),dur:p.dur,before:p.before,after:p.after,gap:p.gap,fixed:p.fixed||null,custom:!!p.custom,from:p.after?null:(p.from!=null?p.from:p.before+21)}}
+  function byId(id){for(var i=0;i<tasks.length;i++)if(tasks[i].id===id)return tasks[i];return null}
+  function dependsOn(a,b,seen){ // a が（たどって）b の後か
+    seen=seen||{};var t=byId(a);
+    while(t&&t.after&&!seen[t.id]){seen[t.id]=1;if(t.after===b)return true;t=byId(t.after)}
+    return false;
+  }
+
+  function compute(shift){
+    var res={},order=[],state={};
+    function visit(t){
+      if(state[t.id]===2)return; if(state[t.id]===1){t._loop=true;return}
+      state[t.id]=1; var p=t.after&&byId(t.after); if(p)visit(p); state[t.id]=2; order.push(t);
+    }
+    tasks.forEach(visit);
+    order.forEach(function(t){
+      var dl=WED-t.before*DAY, p=t.after&&byId(t.after), pr=p&&res[p.id];
+      var start=TODAY; if(pr)start=Math.max(TODAY,pr.est+t.gap*DAY); else if(t.from!=null)start=Math.max(TODAY,WED-t.from*DAY);
+      var end=Math.min(dl,WED-DAY), cands=[];
+      for(var d=start;d<=end;d+=DAY){if(t.need.every(function(k){return SN[k].ok(d)}))cands.push(d)}
+      var r={t:t,dl:dl,start:start,cands:cands,prev:p||null};
+      var left=Math.round((dl-TODAY)/DAY); r.left=left;
+      if(t.fixed){r.lv="done";r.on=t.fixed}
+      else if(dl<TODAY){r.lv="none";r.over=true}
+      else{
+        var c=cands.length;
+        r.lv=c===0?"none":(c<=2||left<=7)?"risk":c<=4?"mid":"safe";
+        if(r.lv==="risk"){
+          if(shift&&shift[t.id]){ if(cands[1]){r.on=cands[1]} else {r.lv="none";r.lost=true} }
+          else r.on=cands[0];
+          r.hold=!!r.on;
+        }
+      }
+      r.est=r.on||cands[0]||dl;
+      res[t.id]=r;
+    });
+    return {res:res,order:order};
+  }
+
+  var LABEL={safe:"青　余裕あり",mid:"黄　早めに",risk:"赤　急ぎ",none:"黒　組めない",done:"確定"};
+  var RANK={none:0,risk:1,mid:2,safe:3,done:4};
+  function pct(t){return Math.max(0,Math.min(100,(t-TODAY)/DAY/(SPAN+1)*100))}
+  function pctW(a,b){return pct(b)-pct(a)}
+
+  function renderBoard(){
+    var base=compute(null), held={};
+    base.order.forEach(function(t){if(base.res[t.id].hold)held[t.id]=1});
+    var A=scn==="slip"?compute(held):base, rows=A.order.map(function(t){return A.res[t.id]});
+    if(sortMode==="urgent")rows.sort(function(a,b){return RANK[a.lv]-RANK[b.lv]||a.left-b.left});
+    else rows.sort(function(a,b){return a.est-b.est||a.dl-b.dl});
+    var g=document.getElementById("gantt"), h="<div class='axis'>";
+    for(var d=0;d<=SPAN;d+=7){var t=TODAY+d*DAY;
+      h+="<span class='"+(d===0?"first today":"")+"' style='left:"+pct(t)+"%'>"+(d===0?"今日 ":"")+fmt(t)+"</span>"}
+    h+="<span class='wed' style='left:100%'>挙式 1/23</span></div>";
+    if(!rows.length)h+="<p class='muted' style='padding:16px 0'>工程が選ばれていません。上の設定で工程を選んでください。</p>";
+    rows.forEach(function(r){
+      var t=r.t, need=t.need.map(function(k){return SN[k].n}).join("・")||"（必要な人が未設定）";
+      var right;
+      if(r.lv==="done")right="<strong>"+fmtw(r.on)+"</strong> に確定";
+      else if(r.over)right="締切を過ぎています";
+      else right="締切まで <strong>"+r.left+"日</strong>｜そろう日 <strong>"+r.cands.length+"日</strong>";
+      h+="<div class='row r-"+r.lv+"'><div class='rtop'><span class='st "+r.lv+"'>"+LABEL[r.lv]+"</span><b>"+esc(t.name)+"</b><span class='need'>"+esc(need)+"</span><span class='left'>"+right+"</span></div><div class='track'>";
+      for(var d=7;d<=SPAN;d+=7)h+="<i class='wk' style='left:"+pct(TODAY+d*DAY)+"%'></i>";
+      if(r.lv==="done"){h+="<span class='pin fixed' style='left:"+pct(r.on+DAY/2)+"%'>✓ "+fmt(r.on)+"</span>"}
+      else if(r.over){h+="<span class='msg-in'>締切（挙式の"+t.before+"日前）が今日より前です</span>"}
+      else{
+        if(r.start>TODAY)h+="<i class='wait' style='left:0;width:"+pctW(TODAY,r.start)+"%'></i>";
+        var e=Math.max(r.start,Math.min(r.dl,WED-DAY))+DAY;
+        if(r.dl>=r.start)h+="<i class='win' style='left:"+pct(r.start)+"%;width:"+pctW(r.start,e)+"%'></i>";
+        r.cands.forEach(function(c){if(c!==r.on)h+="<i class='dot' style='left:"+pct(c+DAY/2)+"%'></i>"});
+        h+="<i class='dl' style='left:"+pct(Math.min(r.dl,WED-DAY)+DAY)+"%'></i>";
+        if(r.on)h+="<span class='pin hold' style='left:"+pct(r.on+DAY/2)+"%'>仮 "+fmt(r.on)+"</span>";
+        if(r.lv==="none"&&!r.cands.length&&r.dl>=r.start)h+="<span class='msg-in'>締切までに全員そろう日がありません</span>";
+      }
+      h+="</div><div class='rsub'><span>締切 "+fmtw(r.dl)+"（挙式の"+t.before+"日前）</span>";
+      if(r.prev)h+="<span>「"+esc(r.prev.name)+"」の"+t.gap+"日後から</span>";
+      h+="<span>所要 "+t.dur+"</span>";
+      if(r.cands.length&&r.lv!=="done"&&r.cands.length<=4)h+="<span>そろう日："+r.cands.map(fmtw).join("・")+"</span>";
+      if(t._loop)h+="<span class='warn'>前後関係がループしています</span>";
+      h+="</div></div>";
+    });
+    g.innerHTML=h;
+    var cnt={};rows.forEach(function(r){cnt[r.lv]=(cnt[r.lv]||0)+1});
+    document.getElementById("summary").innerHTML=["none","risk","mid","safe","done"].filter(function(k){return cnt[k]}).map(function(k){return "<span class='st "+k+"'>"+LABEL[k]+"　"+cnt[k]+"件</span>"}).join("");
+    // いちばん上の一文
+    var fo=document.getElementById("focus"), msg="";
+    if(scn==="slip"){
+      var ch=A.order.filter(function(t){return A.res[t.id].lv!==base.res[t.id].lv}).map(function(t){return "「"+esc(t.name)+"」は"+LABEL[base.res[t.id].lv].slice(0,1)+"→"+LABEL[A.res[t.id].lv].slice(0,1)});
+      var moved=A.order.filter(function(t){return held[t.id]&&A.res[t.id].on}).map(function(t){return "「"+esc(t.name)+"」は次の候補 "+fmtw(A.res[t.id].on)+" に仮押さえし直し"});
+      msg="仮押さえした日がだめになると："+(moved.concat(ch).join("、")||"色の変わる工程はありません")+"。前の工程がずれると、後ろの工程の余裕も自動で計算し直されます。";
+    }else{
+      var top=rows.filter(function(r){return r.lv==="none"||r.lv==="risk"});
+      if(top.length){var r=top[0];
+        msg="いちばん急ぐのは「"+esc(r.t.name)+"」です。"+(r.over?"締切（挙式の"+r.t.before+"日前）を過ぎているため、締切を見直すか、外してください。":r.cands.length?("必要な人がそろうのは "+r.cands.map(fmtw).join("・")+" だけなので、"+(r.on?fmtw(r.on)+" で仮押さえしています。":"すぐに調整が必要です。")):"締切までに全員がそろう日がないため、責任者に代わりの案を出します。");
+      }else msg="急ぐ工程はありません。青と黄の工程を、週1回の都合集めのあとで順に調整します。";
+    }
+    fo.innerHTML=msg; fo.className="focus"+((scn!=="slip"&&!/急ぐのは/.test(msg))?" calm":"");
+  }
+
+  // 3. 工程マップ：棒をドラッグして期間・締切・つながりを決める
+  var MAXB=120, drag=null, frozen=null, hoverId=null, INI={lead:"責",pl:"プ",hm:"ヘ",cos:"衣",ph:"フ"};
+  var tl=document.getElementById("tline");
+  function bx(b){return (MAXB-b)/MAXB*100}
+  function startB(t){var p=t.after&&byId(t.after);return p?p.before-t.gap:(t.from!=null?t.from:t.before+21)}
+  function renderTimeline(){
+    if(!frozen){var mb=0;tasks.forEach(function(t){mb=Math.max(mb,t.before,startB(t))});MAXB=Math.max(120,Math.ceil((mb+10)/30)*30)}
+    var lv=compute(null).res;
+    var list=frozen?frozen.map(byId).filter(Boolean):tasks.slice().sort(function(a,b){return b.before-a.before});
+    var ticks=[MAXB,90,60,30,14,0].filter(function(b,i,a){return b<=MAXB&&a.indexOf(b)===i});
+    var h="<div class='tl-row tl-head'><div></div><div class='tl-pad'><div class='tl-axis'>";
+    ticks.forEach(function(b){h+="<span class='"+(b===0?"wed":b===14?"m-hide":"")+"' style='left:"+bx(b)+"%'><b>"+(b===0?"挙式":b+"日前")+"</b>"+fmt(WED-b*DAY)+"</span>"});
+    h+="<span style='left:"+bx(SPAN)+"%;bottom:auto;top:0'><b>今日</b></span></div></div></div>";
+    list.forEach(function(t){
+      var prev=t.after&&byId(t.after), sb=startB(t), bad=t.before>sb, L=lv[t.id]?lv[t.id].lv:"safe";
+      h+="<div class='tl-row' data-id='"+t.id+"'><div class='tl-name'>"+esc(t.name)+
+        "<small class='"+(bad?"bad":"")+"'>"+(bad?"前の工程より前になっています":fmtw(WED-sb*DAY)+"から "+fmtw(WED-t.before*DAY)+"まで")+"</small>"+
+        "<div class='tl-meta'>"+STAFF.map(function(s){return "<button type='button' class='av-t' data-k='"+s.k+"' aria-pressed='"+(t.need.indexOf(s.k)>=0)+"' title='"+s.n+"' aria-label='"+s.n+"'>"+INI[s.k]+"</button>"}).join("")+
+        "<button type='button' class='tl-chip' data-dur title='所要時間（タップで切り替え）'>"+t.dur+"</button>"+
+        (prev?"<span class='tl-prev'>←"+esc(prev.name)+"<button type='button' data-unlink aria-label='つながりを外す'>×</button></span>":"")+
+        "<button type='button' class='tl-link' title='別の工程の行までドラッグすると、その工程がこの工程の後になります'>つなぐ→</button></div></div>";
+      h+="<div class='tl-pad'><div class='tl-track' data-id='"+t.id+"'><i class='tl-past' style='width:"+bx(SPAN)+"%'></i>";
+      [90,60,30,14].forEach(function(b){if(b<MAXB)h+="<i class='tl-tick' style='left:"+bx(b)+"%'></i>"});
+      h+="<i class='tl-now' style='left:"+bx(SPAN)+"%'></i>";
+      for(var d=TODAY;d<WED;d+=DAY){if(t.need.length&&t.need.every(function(k){return SN[k].ok(d)}))h+="<i class='tl-av' style='left:"+bx(Math.round((WED-d)/DAY))+"%'></i>"}
+      var l=bx(Math.max(sb,t.before)),w=Math.abs(bx(t.before)-bx(sb));
+      h+="<div class='tl-bar "+L+(bad?" bad":"")+"' data-id='"+t.id+"' style='left:"+l+"%;width:"+w+"%'><span class='tl-s' title='始められる日'></span></div>";
+      h+="<button type='button' class='tl-h "+L+"' data-id='"+t.id+"' role='slider' aria-valuemin='0' aria-valuemax='"+MAXB+"' aria-valuenow='"+t.before+"' aria-valuetext='挙式の"+t.before+"日前まで' aria-label='"+esc(t.name)+"の締切' style='left:"+bx(t.before)+"%'>"+t.before+"日前</button>";
+      h+="</div></div></div>";
+    });
+    tl.innerHTML=(list.length?h:"<p class='muted'>工程を選ぶと、ここに並びます。</p>")+"<svg class='tl-svg' aria-hidden='true'></svg>";
+    drawArrows();
+  }
+  function drawArrows(){
+    var svg=tl.querySelector(".tl-svg");if(!svg)return;
+    var R=tl.getBoundingClientRect();svg.setAttribute("width",R.width);svg.setAttribute("height",R.height);
+    var s="<defs><marker id='tl-ah' viewBox='0 0 8 8' refX='7' refY='4' markerWidth='7' markerHeight='7' orient='auto'><path d='M0,0 L8,4 L0,8 z' fill='currentColor' stroke='none'/></marker></defs>";
+    tasks.forEach(function(t){
+      if(!t.after)return;
+      var pe=tl.querySelector(".tl-h[data-id='"+t.after+"']"),cb=tl.querySelector(".tl-bar[data-id='"+t.id+"']");if(!pe||!cb)return;
+      var a=pe.getBoundingClientRect(),c=cb.getBoundingClientRect();
+      var x1=a.right-R.left,y1=a.top+a.height/2-R.top,x2=c.left-R.left+2,y2=c.top+c.height/2-R.top;
+      var on=hoverId&&(hoverId===t.id||hoverId===t.after);
+      s+="<path class='"+(on?"hl":"")+"' d='M"+x1+","+y1+" C"+(x1+40)+","+y1+" "+(x2-40)+","+y2+" "+x2+","+y2+"' marker-end='url(#tl-ah)'/>";
+    });
+    if(drag&&drag.mode==="link"&&drag.x!=null){
+      var src=tl.querySelector(".tl-row[data-id='"+drag.id+"'] .tl-link");
+      if(src){var r=src.getBoundingClientRect();s+="<path class='tmp' d='M"+(r.right-R.left)+","+(r.top+r.height/2-R.top)+" L"+(drag.x-R.left)+","+(drag.y-R.top)+"'/>"}
+    }
+    svg.innerHTML=s;
+  }
+  function syncEditor(t){
+    [["bf-",t.before],["gp-",t.gap],["fr-",t.from]].forEach(function(p){var i=document.getElementById(p[0]+t.id);if(i&&p[1]!=null)i.value=p[1]});
+  }
+  function setEnd(t,b){t.before=Math.max(0,Math.min(MAXB,b));if(!t.after&&t.from!=null&&t.from<t.before)t.from=t.before}
+  function setStart(t,b){
+    b=Math.max(0,Math.min(MAXB,b));var p=t.after&&byId(t.after);
+    if(p)t.gap=Math.max(0,p.before-b);else t.from=Math.max(b,t.before);
+  }
+  function posToB(x){return Math.round(MAXB-(x-drag.rect.left)/drag.rect.width*MAXB)}
+  function rowIds(){return [].map.call(tl.querySelectorAll(".tl-row[data-id]"),function(x){return x.dataset.id})}
+  tl.addEventListener("pointerdown",function(e){
+    if(e.button>0)return;
+    var lk=e.target.closest(".tl-link");
+    if(lk){e.preventDefault();drag={mode:"link",id:lk.closest(".tl-row").dataset.id};try{tl.setPointerCapture(e.pointerId)}catch(_){}return}
+    if(e.target.closest(".tl-meta"))return;
+    var tr=e.target.closest(".tl-track");if(!tr)return;
+    e.preventDefault();
+    var t=byId(tr.dataset.id);frozen=rowIds();
+    var mode=e.target.closest(".tl-h")?"end":e.target.closest(".tl-s")?"start":e.target.closest(".tl-bar")?"move":"end";
+    drag={mode:mode,id:t.id,rect:tr.getBoundingClientRect(),before0:t.before,start0:startB(t)};
+    drag.b0=posToB(e.clientX);
+    try{tl.setPointerCapture(e.pointerId)}catch(_){}
+    if(mode==="end"&&!e.target.closest(".tl-h"))move(e);
+  });
+  function move(e){
+    if(!drag)return;
+    if(drag.mode==="link"){
+      drag.x=e.clientX;drag.y=e.clientY;
+      var el=document.elementFromPoint(e.clientX,e.clientY),row=el&&el.closest(".tl-row[data-id]");
+      tl.querySelectorAll(".tl-target").forEach(function(r){r.classList.remove("tl-target")});
+      if(row&&row.dataset.id!==drag.id&&!dependsOn(drag.id,row.dataset.id))row.classList.add("tl-target");
+      drawArrows();return;
+    }
+    var t=byId(drag.id),b=posToB(e.clientX);
+    if(drag.mode==="end")setEnd(t,b);
+    else if(drag.mode==="start")setStart(t,b);
+    else{
+      var d=b-drag.b0,p=t.after&&byId(t.after);
+      d=Math.max(d,-drag.before0);d=Math.min(d,MAXB-drag.start0);
+      if(p)d=Math.min(d,p.before-drag.start0);
+      t.before=drag.before0+d;setStart(t,drag.start0+d);
+    }
+    syncEditor(t);renderTimeline();renderBoard();
+  }
+  tl.addEventListener("pointermove",move);
+  function end(e){
+    if(!drag)return;var dg=drag;drag=null;
+    if(dg.mode==="link"&&e&&e.type==="pointerup"){
+      var el=document.elementFromPoint(e.clientX,e.clientY),row=el&&el.closest(".tl-row[data-id]");
+      if(row&&row.dataset.id!==dg.id&&!dependsOn(dg.id,row.dataset.id)){
+        var tg=byId(row.dataset.id),src=byId(dg.id),old=startB(tg);
+        tg.after=dg.id;tg.gap=Math.max(0,src.before-old);
+      }
+    }
+    frozen=null;renderTimeline();renderEditor();renderBoard();
+    if(dg.mode!=="link"){var hd=tl.querySelector(".tl-h[data-id='"+dg.id+"']");if(hd)hd.focus({preventScroll:true})}
+  }
+  tl.addEventListener("pointerup",end);tl.addEventListener("pointercancel",end);
+  tl.addEventListener("click",function(e){
+    var row=e.target.closest(".tl-row[data-id]");if(!row)return;var t=byId(row.dataset.id),hit=false;
+    var av=e.target.closest(".av-t");
+    if(av){var k=av.dataset.k,i=t.need.indexOf(k);if(i>=0)t.need.splice(i,1);else t.need.push(k);hit=true}
+    if(e.target.closest("[data-dur]")){t.dur=DURS[(DURS.indexOf(t.dur)+1)%DURS.length];hit=true}
+    if(e.target.closest("[data-unlink]")){var sb=startB(t);t.after="";t.gap=0;t.from=sb;hit=true}
+    if(hit){renderTimeline();renderEditor();renderBoard()}
+  });
+  tl.addEventListener("keydown",function(e){
+    var hd=e.target.closest(".tl-h");if(!hd)return;
+    var step={ArrowLeft:1,ArrowDown:1,ArrowRight:-1,ArrowUp:-1,PageUp:7,PageDown:-7}[e.key];if(step===undefined)return;
+    e.preventDefault();var id=hd.dataset.id,t=byId(id);
+    frozen=rowIds();setEnd(t,t.before+step);syncEditor(t);renderTimeline();renderBoard();frozen=null;
+    var n=tl.querySelector(".tl-h[data-id='"+id+"']");if(n)n.focus();
+  });
+  window.addEventListener("resize",drawArrows);
+  tl.addEventListener("pointerover",function(e){var r=e.target.closest(".tl-row[data-id]"),id=r?r.dataset.id:null;if(id!==hoverId&&!drag){hoverId=id;drawArrows()}});
+  tl.addEventListener("pointerleave",function(){if(hoverId&&!drag){hoverId=null;drawArrows()}});
+
+  // 1. 工程を選ぶ
+  function renderCats(){
+    var h="";
+    CATS.forEach(function(c){
+      h+="<div class='cat'><span>"+c+"</span><div class='chips'>";
+      PRESETS.filter(function(p){return p.cat===c}).forEach(function(p){
+        h+="<button type='button' class='chip' data-id='"+p.id+"' aria-pressed='"+(!!byId(p.id))+"'>"+p.name+"</button>"});
+      h+="</div></div>";
+    });
+    var cs=tasks.filter(function(t){return t.custom});
+    if(cs.length){h+="<div class='cat'><span>追加した工程</span><div class='chips'>";
+      cs.forEach(function(t){h+="<button type='button' class='chip' data-id='"+t.id+"' aria-pressed='true'>"+esc(t.name)+"</button>"});
+      h+="</div></div>"}
+    document.getElementById("cats").innerHTML=h;
+  }
+  // 3. 工程ごとの設定
+  function renderEditor(){
+    var h="";
+    var list=tasks.slice().sort(function(a,b){return b.before-a.before});
+    list.forEach(function(t){
+      var opts="<option value=''>なし</option>";
+      tasks.forEach(function(o){if(o.id!==t.id&&!dependsOn(o.id,t.id))opts+="<option value='"+o.id+"'"+(t.after===o.id?" selected":"")+">"+esc(o.name)+"</option>"});
+      h+="<div class='ed' data-id='"+t.id+"'><div class='nm'>"+esc(t.name)+"<small>"+(t.custom?"書き足した工程":"用意した工程")+"</small></div><div class='fields'>"+
+        "<span class='who' role='group' aria-label='必要な人'>"+STAFF.map(function(s){return "<button type='button' data-k='"+s.k+"' aria-pressed='"+(t.need.indexOf(s.k)>=0)+"'>"+s.n+"</button>"}).join("")+"</span>"+
+        "<label>挙式の<input type='number' id='bf-"+t.id+"' data-f='before' min='1' max='365' value='"+t.before+"'>日前まで</label>"+
+        "<label>所要<select id='du-"+t.id+"' data-f='dur'>"+DURS.map(function(d){return "<option"+(d===t.dur?" selected":"")+">"+d+"</option>"}).join("")+"</select></label>"+
+        "<label>前の工程<select id='af-"+t.id+"' data-f='after'>"+opts+"</select></label>"+
+        (t.after?"<label>の<input type='number' id='gp-"+t.id+"' data-f='gap' min='0' max='120' value='"+t.gap+"'>日後から</label>":"<label>挙式の<input type='number' id='fr-"+t.id+"' data-f='from' min='0' max='365' value='"+startB(t)+"'>日前から</label>")+
+        "</div><button type='button' class='rm' data-rm='"+t.id+"' aria-label='"+esc(t.name)+"を外す'>外す ×</button></div>";
+    });
+    document.getElementById("editor").innerHTML=h||"<p class='muted'>工程を選ぶと、ここに設定が並びます。</p>";
+  }
+  function all(){renderCats();renderTimeline();renderEditor();renderBoard()}
+  function toggle(id){
+    var t=byId(id);
+    if(t){tasks=tasks.filter(function(x){return x.id!==id})}
+    else{var p=PRESETS.filter(function(x){return x.id===id})[0];if(p)tasks.push(clone(p))}
+    all();
+  }
+  document.getElementById("cats").addEventListener("click",function(e){var b=e.target.closest(".chip");if(b)toggle(b.dataset.id)});
+  document.getElementById("addform").addEventListener("submit",function(e){
+    e.preventDefault();var inp=document.getElementById("addname"),v=inp.value.trim();if(!v)return;
+    customN++;tasks.push({id:"c"+customN,name:v,need:["lead"],dur:"1時間",before:30,after:"",gap:0,fixed:null,custom:true,from:51});
+    inp.value="";all();
+  });
+  var ed=document.getElementById("editor");
+  ed.addEventListener("click",function(e){
+    var rm=e.target.closest("[data-rm]");if(rm){toggle(rm.dataset.rm);return}
+    var b=e.target.closest(".who button");if(!b)return;
+    var t=byId(b.closest(".ed").dataset.id),k=b.dataset.k,i=t.need.indexOf(k);
+    if(i>=0)t.need.splice(i,1);else t.need.push(k);
+    b.setAttribute("aria-pressed",i<0);renderTimeline();renderBoard();
+  });
+  ed.addEventListener("input",function(e){
+    var f=e.target.dataset.f;if(f!=="before"&&f!=="gap"&&f!=="from")return;
+    var t=byId(e.target.closest(".ed").dataset.id),v=parseInt(e.target.value,10);
+    if(isNaN(v))return;t[f]=Math.max(0,Math.min(365,v));renderTimeline();renderBoard();
+  });
+  ed.addEventListener("change",function(e){
+    var f=e.target.dataset.f;if(f!=="dur"&&f!=="after")return;
+    var t=byId(e.target.closest(".ed").dataset.id);t[f]=e.target.value;
+    if(f==="after"){if(!t.after)t.from=t.before+21;t.gap=t.after?(t.gap||7):0;renderEditor()}
+    renderTimeline();renderBoard();
+  });
+  function seg(a,b,val,set){
+    document.getElementById(a).addEventListener("click",function(){set(val[0]);sync()});
+    document.getElementById(b).addEventListener("click",function(){set(val[1]);sync()});
+    function sync(){var on=document.getElementById(a);on.setAttribute("aria-pressed",(val[0]===(a==="sort-urgent"?sortMode:scn)));document.getElementById(b).setAttribute("aria-pressed",(val[1]===(a==="sort-urgent"?sortMode:scn)));renderBoard()}
+  }
+  seg("sort-urgent","sort-order",["urgent","order"],function(v){sortMode=v});
+  seg("sc-normal","sc-slip",["normal","slip"],function(v){scn=v});
+  all();
+})();
+</script>
+</html>
