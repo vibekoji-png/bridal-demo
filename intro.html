@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>日程調整のしくみ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@600;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+/* スマホで上から流し見る入り口ページ。1画面＝1メッセージ、文字は最小限、最後に見本へ */
+:root{
+  --bg:#fbf9fa; --card:#ffffff; --ink:#2a2430; --muted:#776e7a; --line:#ebe4e9; --sunk:#f3eff2;
+  --accent:#8a3a5c; --accent-soft:#f5e8ee;
+  --safe:#2d6db5; --safe-soft:#e3edf9; --mid:#a8740a; --mid-soft:#fbf0d6; --risk:#c2362b; --risk-soft:#fbe4e1; --done:#3f7a5e;
+  --chat:#c9d6e6;
+  --f-display:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif;
+  --f-body:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.7;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:max(28px,env(safe-area-inset-top)) max(20px,env(safe-area-inset-right)) max(48px,env(safe-area-inset-bottom)) max(20px,env(safe-area-inset-left));display:flex;flex-direction:column;gap:22px}
+h1,h2{font-family:var(--f-display);margin:0;line-height:1.35;word-break:auto-phrase}
+p{margin:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:26px 22px;display:flex;flex-direction:column;gap:16px}
+.eyebrow{font-size:12px;letter-spacing:.16em;color:var(--accent);font-weight:700}
+.muted{color:var(--muted);font-size:14px}
+.cta{display:flex;align-items:center;justify-content:center;gap:8px;background:var(--accent);color:#fff;text-decoration:none;font-weight:700;font-size:17px;padding:15px 20px;border-radius:14px}
+.cta:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.cta.ghost{background:transparent;color:var(--accent);border:1.5px solid var(--accent);font-size:15px;padding:11px 16px}
+
+/* 1. ヒーロー */
+.hero{background:var(--ink);color:#fff;border:0;gap:20px;padding:34px 24px 28px}
+.hero h1{font-size:34px;font-weight:800}
+.hero h1 em{font-style:normal;color:#f3b9cf}
+.hero p{color:#d9d1d8;font-size:15.5px}
+.hero .eyebrow{color:#f3b9cf}
+
+/* 2. いま */
+.now{display:flex;flex-direction:column;gap:10px}
+.now div{display:flex;align-items:center;gap:14px;background:var(--sunk);border-radius:14px;padding:12px 14px;font-weight:700;font-size:15.5px}
+.now span{font-size:24px;width:32px;text-align:center;flex:none}
+
+/* 3. 3ステップ */
+.steps{display:flex;flex-direction:column;gap:18px}
+.step{display:grid;grid-template-columns:40px 1fr;gap:14px;align-items:start}
+.step .n{width:40px;height:40px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-family:var(--f-display);font-weight:800;font-size:19px}
+.step b{display:block;font-size:17px;margin-top:6px}
+.step .vis{margin-top:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips i{font-style:normal;font-size:13px;border:1px solid var(--line);border-radius:999px;padding:3px 11px;background:var(--bg)}
+.chips i.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.tap{display:flex;gap:8px}
+.tap i{font-style:normal;width:44px;height:36px;border-radius:10px;border:1.5px solid var(--line);display:grid;place-items:center;font-weight:700;color:var(--muted);background:var(--bg)}
+.tap i.on{border-color:var(--done);color:var(--done);background:#e6f1eb}
+.bars3{display:flex;flex-direction:column;gap:6px}
+.bars3 i{height:12px;border-radius:6px;display:block}
+
+/* 4. 色（動く） */
+.color-demo{display:flex;flex-direction:column;gap:12px}
+.track{position:relative;height:46px;border-radius:12px;background:var(--sunk);overflow:hidden}
+.track .dot{position:absolute;top:50%;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:var(--ink);opacity:.25}
+.track .bar{position:absolute;top:9px;bottom:9px;left:6%;border-radius:8px;border:2px solid var(--risk);background:var(--risk-soft);width:18%;animation:slide 6s ease-in-out infinite}
+.track .dl{position:absolute;top:4px;bottom:4px;width:3px;border-radius:2px;background:var(--ink);left:24%;animation:dl 6s ease-in-out infinite}
+@keyframes slide{0%,12%{width:18%;border-color:var(--risk);background:var(--risk-soft)}45%,55%{width:42%;border-color:var(--mid);background:var(--mid-soft)}88%,100%{width:72%;border-color:var(--safe);background:var(--safe-soft)}}
+@keyframes dl{0%,12%{left:24%}45%,55%{left:48%}88%,100%{left:78%}}
+.status{display:flex;justify-content:space-between;font-size:13px;font-weight:700}
+.status span{display:inline-flex;align-items:center;gap:6px}
+.status span::before{content:"";width:10px;height:10px;border-radius:50%;background:currentColor}
+.s-risk{color:var(--risk)} .s-mid{color:var(--mid)} .s-safe{color:var(--safe)}
+@media (prefers-reduced-motion:reduce){.track .bar,.track .dl{animation:none}.track .bar{width:72%;border-color:var(--safe);background:var(--safe-soft)}.track .dl{left:78%}}
+
+/* 5. LINE */
+.phone{background:var(--chat);border-radius:20px;padding:14px;display:flex;gap:8px;align-items:flex-end}
+.av{width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:11px;font-weight:700;flex:none}
+.bubble{background:#fff;color:#1d1d1d;border-radius:16px;padding:10px 13px;font-size:14.5px;line-height:1.6}
+.bubble b{color:var(--risk)}
+.bubble .btns{display:flex;gap:6px;margin-top:8px}
+.bubble .btns span{border:1px solid #999;border-radius:8px;padding:2px 12px;font-size:13px}
+
+/* 6. 最後 */
+.final{border-color:var(--accent);text-align:center;align-items:stretch}
+.hint{display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;color:var(--muted)}
+.hint .hand{font-size:22px;animation:nudge 1.6s ease-in-out infinite}
+@keyframes nudge{0%,100%{transform:translateX(-6px)}50%{transform:translateX(6px)}}
+@media (prefers-reduced-motion:reduce){.hint .hand{animation:none}}
+footer{text-align:center;font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <section class="card hero">
+    <span class="eyebrow">ブライダルチームのための</span>
+    <h1>日程調整は、<br><em>締切</em>から<br>自然に決まる。</h1>
+    <p>いつものLINEのまま。<br>必要な人がそろう日を、色で見せます。</p>
+    <a class="cta" href="./">見本を触ってみる →</a>
+  </section>
+
+  <section class="card">
+    <h2>こんなこと、<br>ありませんか？</h2>
+    <div class="now">
+      <div><span>🗓</span>別の仕事があって、日が合わない</div>
+      <div><span>📣</span>声の大きい人の都合で決まる</div>
+      <div><span>😮‍💨</span>まとめ役ばかり大変</div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>しくみは、3つだけ。</h2>
+    <div class="steps">
+      <div class="step"><span class="n">1</span><div><b>工程を選ぶ</b>
+        <div class="vis chips"><i class="on">ドレス試着</i><i class="on">リハーサルメイク</i><i>和装の試着</i><i class="on">前撮り</i><i>＋追加</i></div></div></div>
+      <div class="step"><span class="n">2</span><div><b>都合をタップ</b>
+        <div class="vis tap"><i class="on">○</i><i>△</i><i>×</i></div></div></div>
+      <div class="step"><span class="n">3</span><div><b>色を見て決める</b>
+        <div class="vis bars3"><i style="width:40%;background:var(--risk)"></i><i style="width:65%;background:var(--mid)"></i><i style="width:90%;background:var(--safe)"></i></div></div></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>余裕は、色でひと目。</h2>
+    <div class="color-demo" aria-label="締切を後ろにずらすと、赤から黄、青へ変わる様子">
+      <div class="track">
+        <i class="dot" style="left:12%"></i><i class="dot" style="left:30%"></i><i class="dot" style="left:44%"></i><i class="dot" style="left:52%"></i><i class="dot" style="left:63%"></i><i class="dot" style="left:70%"></i>
+        <i class="bar"></i><i class="dl"></i>
+      </div>
+      <div class="status"><span class="s-risk">急ぎ</span><span class="s-mid">早めに</span><span class="s-safe">余裕あり</span></div>
+    </div>
+    <p class="muted">点は「必要な人が全員空いている日」。締切までに点が少ないほど赤になります。</p>
+  </section>
+
+  <section class="card">
+    <h2>届くのは、<br>いつものLINE。</h2>
+    <div class="phone">
+      <div class="av">進行</div>
+      <div class="bubble"><b>● ドレス試着は急ぎです</b><br>3人がそろうのは 11/18 だけ。<br>仮押さえしました。
+        <div class="btns"><span>OK</span><span>都合が悪い</span></div></div>
+    </div>
+    <p class="muted">催促も決定の連絡も、ボットがします。</p>
+  </section>
+
+  <section class="card final">
+    <h2>まずは、<br>触ってみてください。</h2>
+    <p class="hint"><span class="hand">👆</span>棒を指で動かすと、色が変わります</p>
+    <a class="cta" href="./">見本を開く →</a>
+    <p class="muted">中身はすべて例です。<br>気になったら、30分ほど<br>お話を聞かせてください。</p>
+  </section>
+
+  <footer>日程調整と進行管理のしくみ（ご提案のたたき台）</footer>
+</div>
+</body>
+</html>
