@@ -383,7 +383,7 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
     $("plan").innerHTML=mine.length?mine.map(function(r){
       var t=r.t,w=win(r),cd=canDecide(t),mineT=staff&&involved(t),h="<article class='card prow c-"+r.lv+(staff&&!mineT?" other":"")+"' data-id='"+t.id+"'><div class='h'><span class='st "+r.lv+"'>"+LABEL[r.lv]+"</span><b>"+esc(t.name)+"</b>"+
         (r.lv==="done"?"":"<span class='lft'>締切まで <strong>"+Math.max(r.left,0)+"日</strong></span>")+"</div>"+
-        "<div class='need'>"+esc(names(t.need))+" · "+t.dur+(mineT&&t.need.indexOf(me)>=0?"<span class='me'>あなたの出番</span>":"")+"</div>"+
+        "<div class='need'>"+esc(names(t.need))+" · "+t.dur+(mineT&&t.need.indexOf(me)>=0?"<span class='me'>あなたのタスク</span>":"")+"</div>"+
         "<div class='owner'>決める人：<b>"+esc(nm(t.owner))+"</b>"+(staff&&t.owner===me?"（あなた）":"")+"</div>";
       if(r.dl<r.start&&!r.on||!r.cands.length&&!r.on){
         h+="<div class='msg' style='color:var(--c)'>"+(r.left<0?"締切を過ぎています":"締切（"+fmtw(r.dl)+"）までに、全員そろう日がありません")+"</div>"+(cd?"<button type='button' class='alt' data-alt='"+t.id+"'>代わりの案を見る</button>":"<div class='msg wait'>"+esc(nm(t.owner))+"と責任者が対応します</div>")+"</article>";return h}
