@@ -29,6 +29,7 @@
   --k-mtg:#b9a0e6; --k-dress:#f09ab8; --k-beauty:#7fd3c9; --k-photo:#c3d17f; --k-day:#e0b48d; --k-other:#b3aab4;
   --shadow:none; color-scheme:dark}}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
 html,body{margin:0;height:100%}
 body{background:var(--bg);color:var(--ink);font-family:var(--f);font-size:16px;line-height:1.6;-webkit-text-size-adjust:100%}
 button{font:inherit;color:inherit;cursor:pointer}
@@ -174,6 +175,26 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
 .prow .alt{border:2px solid var(--c);background:var(--cs);color:var(--c);border-radius:12px;padding:10px;font-weight:700;font-size:15px}
 .toast button{margin-left:10px;border:0;background:var(--bg);color:var(--ink);border-radius:8px;padding:4px 10px;font-weight:700;font-size:13px}
 
+/* 見ている人・範囲・主担当 */
+.viewer{display:flex;align-items:center;gap:8px;margin-top:10px}
+.viewer>span{font-size:11px;opacity:.7;white-space:nowrap}
+.vchips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-right:-18px;padding-right:18px}
+.vchips::-webkit-scrollbar{display:none}
+.vchips button{flex:none;border:1.5px solid rgba(255,255,255,.35);background:transparent;color:var(--on-bar);border-radius:999px;padding:5px 13px;font-size:13.5px;font-weight:700;white-space:nowrap}
+.vchips button[aria-pressed="true"]{background:var(--on-bar);color:var(--bar);border-color:var(--on-bar)}
+.scope{display:grid;grid-template-columns:1fr 1fr;background:var(--sunk);border-radius:12px;padding:4px;gap:4px}
+.scope[hidden]{display:none}
+.scope button{border:0;background:transparent;border-radius:9px;padding:9px 0;font-weight:700;font-size:14.5px;color:var(--muted)}
+.scope button[aria-pressed="true"]{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
+.owner{font-size:12.5px;color:var(--muted)}
+.owner b{color:var(--ink)}
+.ds.ro input[type=range]{pointer-events:none}
+.ds.ro input[type=range]::-webkit-slider-thumb{border-color:var(--line);background:var(--sunk)}
+.ds.ro input[type=range]::-moz-range-thumb{border-color:var(--line);background:var(--sunk)}
+.prow.other{opacity:.78}
+.lock{margin:0;font-size:13.5px;color:var(--muted);background:var(--sunk);border-radius:12px;padding:10px 12px}
+.lock[hidden]{display:none}
+
 /* 下のタブ */
 .tabs{position:fixed;left:0;right:0;bottom:0;z-index:8;display:flex;justify-content:center;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
 .tabs nav{display:grid;grid-template-columns:repeat(3,1fr);width:100%;max-width:480px}
@@ -224,6 +245,7 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
     <span class="days">挙式まで<strong id="left-days">68日</strong></span>
     <small>見本 · 中身はすべて例です</small>
     <b>◯◯様　1/23（土）挙式</b>
+    <div class="viewer"><span>見ている人</span><div class="vchips" id="me" role="group" aria-label="見ている人（見本の切り替え）"></div></div>
   </header>
 
   <main>
@@ -231,7 +253,7 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
     <section class="view" id="v-plan">
       <h2>日程を決める</h2>
       <p class="sub">つまみを左右にスライドして、離すとその日に決まります。<span class="okmark"></span>の日は必要な人が全員OKです。</p>
-      <div class="chips" id="me" role="group" aria-label="見ている人"></div>
+      <div class="scope" id="scope" role="group" aria-label="表示の範囲"></div>
       <div class="counts" id="counts"></div>
       <div class="todo" id="plan"></div>
     </section>
@@ -241,6 +263,7 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
       <h2>工程の型</h2>
       <p class="sub">つまみを動かすと「挙式の何日前まで」が変わり、色もその場で変わります。</p>
       <div class="todo" id="steps"></div>
+      <p class="lock" id="steps-lock" hidden>工程の型を直せるのは責任者だけです。見るだけの表示です。</p>
       <button type="button" class="add" id="add-step">＋ 工程を追加</button>
     </section>
 
@@ -288,7 +311,9 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
   function $(id){return document.getElementById(id)}
 
   // スタッフとNG日（見本の初期値）
-  var STAFF=[{k:"lead",n:"責任者"},{k:"pl",n:"プランナー"},{k:"hm",n:"ヘアメイク"},{k:"cos",n:"衣装"},{k:"ph",n:"フォト"}], SN={};
+  // n=役割、p=名前（運用時に入れる。入っていれば名前で表示）
+  var STAFF=[{k:"lead",n:"責任者",p:""},{k:"pl",n:"プランナー",p:""},{k:"hm",n:"ヘアメイク",p:""},{k:"cos",n:"衣装",p:""},{k:"ph",n:"フォト",p:""}], SN={};
+  function nm(k){var s=SN[k];return s?(s.p||s.n):""}
   STAFF.forEach(function(s){SN[s.k]=s});
   var NG0={lead:{w:[],d:[[11,22],[12,6]]},pl:{w:[0,1,6],d:[]},hm:{w:[0,4,5,6],d:[]},cos:{w:[1,2,4,5],d:[]},ph:{w:[0,5,6],d:[]}}, NG={};
   function resetNG(){Object.keys(NG0).forEach(function(k){var w={},d={};NG0[k].w.forEach(function(x){w[x]=1});NG0[k].d.forEach(function(x){d[Date.UTC(x[0]>=11?2026:2027,x[0]-1,x[1])]=1});NG[k]={w:w,d:d}})}
@@ -312,7 +337,8 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
     {id:"pre",cat:"撮影",name:"前撮り",need:["ph","hm","cos"],dur:"半日",before:28,after:"reh",gap:3,on:1},
     {id:"read",cat:"当日準備",name:"当日進行表の読み合わせ",need:["lead","pl","hm","cos","ph"],dur:"1時間",before:10,after:"bgm",gap:14,on:1}
   ];
-  function clone(p){return {id:p.id,cat:p.cat,name:p.name,need:p.need.slice(),dur:p.dur,before:p.before,after:p.after||"",gap:p.gap||0,fixed:p.fixed||null,from:p.after?null:p.before+21}}
+  var OWN={kick:"lead",site:"pl",bgm:"pl",flower:"pl",fit:"cos",wafuku:"cos",size:"cos",image:"hm",reh:"hm",loc:"ph",pre:"ph",read:"pl"};
+  function clone(p){return {id:p.id,owner:OWN[p.id]||"lead",cat:p.cat,name:p.name,need:p.need.slice(),dur:p.dur,before:p.before,after:p.after||"",gap:p.gap||0,fixed:p.fixed||null,from:p.after?null:p.before+21}}
   var tasks=PRESETS.filter(function(p){return p.on}).map(clone), cN=0;
   function byId(id){for(var i=0;i<tasks.length;i++)if(tasks[i].id===id)return tasks[i];return null}
   function dependsOn(a,b){var seen={},t=byId(a);while(t&&t.after&&!seen[t.id]){seen[t.id]=1;if(t.after===b)return true;t=byId(t.after)}return false}
@@ -335,54 +361,62 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
     });
     return {res:res,order:order};
   }
-  function names(need){return need.map(function(k){return SN[k].n}).join("・")}
+  function names(need){return need.map(nm).join("・")}
 
   // 画面の状態
-  var me="all", ngWho="hm", ngMonth=Date.UTC(2026,10,1), last={};
+  var me="lead", scope="mine", ngWho="hm", ngMonth=Date.UTC(2026,10,1), last={};
 
+  function canDecide(t){return me==="lead"||t.owner===me}
+  function renderViewer(){$("me").innerHTML=STAFF.map(function(s){return "<button type='button' data-me='"+s.k+"' aria-pressed='"+(me===s.k)+"'>"+esc(nm(s.k))+"</button>"}).join("")}
   // 日程：工程の順に並べ、スライドで日を決める
   function freeDay(t,d){return t.need.every(function(k){return ok(k,d)})}
-  function ngWho2(t,d){return t.need.filter(function(k){return !ok(k,d)}).map(function(k){return SN[k].n})}
+  function ngWho2(t,d){return t.need.filter(function(k){return !ok(k,d)}).map(nm)}
   function win(r){var a=r.start,b=Math.min(r.dl,WED-DAY);if(r.on&&r.on<a)a=r.on;if(r.on&&r.on>b)b=r.on;return {a:a,b:b,n:Math.round((b-a)/DAY)+1}}
   function renderPlan(){
     var A=compute(),rows=A.order.map(function(t){return A.res[t.id]});
-    $("me").innerHTML=[["all","全員"]].concat(STAFF.map(function(s){return [s.k,s.n]})).map(function(x){return "<button type='button' class='chip' data-me='"+x[0]+"' aria-pressed='"+(me===x[0])+"'>"+(x[0]==="all"?"全員":"自分は "+x[1])+"</button>"}).join("");
-    var mine=rows.filter(function(r){return me==="all"||r.t.need.indexOf(me)>=0}).sort(function(a,b){return a.est-b.est||a.dl-b.dl});
+    var staff=me!=="lead",sc=$("scope");sc.hidden=!staff;
+    sc.innerHTML="<button type='button' data-scope='mine' aria-pressed='"+(scope==="mine")+"'>自分の出番</button><button type='button' data-scope='all' aria-pressed='"+(scope==="all")+"'>全体</button>";
+    function involved(t){return t.need.indexOf(me)>=0||t.owner===me}
+    var mine=rows.filter(function(r){return !staff||scope==="all"||involved(r.t)}).sort(function(a,b){return a.est-b.est||a.dl-b.dl});
     var cnt={};mine.forEach(function(r){cnt[r.lv]=(cnt[r.lv]||0)+1});
     $("counts").innerHTML=["none","risk","mid","safe","done"].filter(function(k){return cnt[k]}).map(function(k){return "<span class='st "+k+"'>"+LABEL[k]+" "+cnt[k]+"</span>"}).join("");
     $("plan").innerHTML=mine.length?mine.map(function(r){
-      var t=r.t,w=win(r),h="<article class='card prow c-"+r.lv+"' data-id='"+t.id+"'><div class='h'><span class='st "+r.lv+"'>"+LABEL[r.lv]+"</span><b>"+esc(t.name)+"</b>"+
+      var t=r.t,w=win(r),cd=canDecide(t),mineT=staff&&involved(t),h="<article class='card prow c-"+r.lv+(staff&&!mineT?" other":"")+"' data-id='"+t.id+"'><div class='h'><span class='st "+r.lv+"'>"+LABEL[r.lv]+"</span><b>"+esc(t.name)+"</b>"+
         (r.lv==="done"?"":"<span class='lft'>締切まで <strong>"+Math.max(r.left,0)+"日</strong></span>")+"</div>"+
-        "<div class='need'>"+esc(names(t.need))+" · "+t.dur+(me!=="all"?"<span class='me'>あなたの出番</span>":"")+"</div>";
+        "<div class='need'>"+esc(names(t.need))+" · "+t.dur+(mineT&&t.need.indexOf(me)>=0?"<span class='me'>あなたの出番</span>":"")+"</div>"+
+        "<div class='owner'>決める人：<b>"+esc(nm(t.owner))+"</b>"+(staff&&t.owner===me?"（あなた）":"")+"</div>";
       if(r.dl<r.start&&!r.on||!r.cands.length&&!r.on){
-        h+="<div class='msg' style='color:var(--c)'>"+(r.left<0?"締切を過ぎています":"締切（"+fmtw(r.dl)+"）までに、全員そろう日がありません")+"</div><button type='button' class='alt' data-alt='"+t.id+"'>代わりの案を見る</button></article>";return h}
+        h+="<div class='msg' style='color:var(--c)'>"+(r.left<0?"締切を過ぎています":"締切（"+fmtw(r.dl)+"）までに、全員そろう日がありません")+"</div>"+(cd?"<button type='button' class='alt' data-alt='"+t.id+"'>代わりの案を見る</button>":"<div class='msg wait'>"+esc(nm(t.owner))+"と責任者が対応します</div>")+"</article>";return h}
       var sel=r.on||r.cands[0],idx=Math.round((sel-w.a)/DAY),pc=w.n>1?idx/(w.n-1)*100:50;
-      h+="<div class='ds"+(r.lv==="done"?" fixed":"")+"'><span class='bub"+(freeDay(t,sel)?(r.lv==="done"?" ok-b":""):" ng")+"' style='left:"+pc+"%'>"+fmtw(sel)+"</span><div class='rail'>";
+      h+="<div class='ds"+(r.lv==="done"?" fixed":"")+(cd?"":" ro")+"'><span class='bub"+(freeDay(t,sel)?(r.lv==="done"?" ok-b":""):" ng")+"' style='left:"+pc+"%'>"+fmtw(sel)+"</span><div class='rail'>";
       for(var i=0;i<w.n;i++){var d=w.a+i*DAY,x=w.n>1?i/(w.n-1)*100:50;h+="<i class='"+(freeDay(t,d)?"":"x")+"' style='left:"+x+"%'></i>"}
-      h+="</div><input type='range' min='0' max='"+Math.max(w.n-1,0)+"' step='1' value='"+idx+"' data-day='"+t.id+"' data-a='"+w.a+"' aria-label='"+esc(t.name)+"の日程' aria-valuetext='"+fmtw(sel)+"'><div class='ends'><span>"+fmt(w.a)+(w.a===TODAY?"（今日）":"")+"</span><span>締切 "+fmt(Math.min(r.dl,WED-DAY))+"</span></div></div>";
-      h+="<div class='msg"+(r.lv==="done"?"":" wait")+"'>"+(r.lv==="done"?"✓ "+fmtw(r.on)+"に決定（スライドで変更できます）":r.hold?"いまは "+fmtw(r.on)+" で仮押さえ。スライドして決めてください":"全員OKの日は "+r.cands.length+"日。スライドして決めてください")+"</div></article>";
-      return h}).join(""):"<div class='card empty'>この人が必要な工程はありません。</div>";
-    var red=rows.filter(function(r){return r.lv==="risk"||r.lv==="none"}).length,b=$("badge");b.hidden=!red;b.textContent=red;
+      h+="</div><input type='range' min='0' max='"+Math.max(w.n-1,0)+"' step='1' value='"+idx+"' data-day='"+t.id+"' data-a='"+w.a+"' aria-label='"+esc(t.name)+"の日程' aria-valuetext='"+fmtw(sel)+"'"+(cd?"":" disabled")+"><div class='ends'><span>"+fmt(w.a)+(w.a===TODAY?"（今日）":"")+"</span><span>締切 "+fmt(Math.min(r.dl,WED-DAY))+"</span></div></div>";
+      var tail=cd?(r.lv==="done"?"（スライドで変更できます）":"スライドして決めてください"):(r.lv==="done"?"":"決めるのは"+nm(t.owner)+"です");
+      h+="<div class='msg"+(r.lv==="done"?"":" wait")+"'>"+(r.lv==="done"?"✓ "+fmtw(r.on)+"に決定"+tail:(r.hold?"いまは "+fmtw(r.on)+" で仮押さえ。":"全員OKの日は "+r.cands.length+"日。")+tail)+(!cd&&mineT&&t.need.indexOf(me)>=0?"<br><span style='font-weight:500'>都合の悪い日は「NG日」に入れてください</span>":"")+"</div></article>";
+      return h}).join(""):"<div class='card empty'>あなたの出番の工程はありません。「全体」で全部見られます。</div>";
+    var red=rows.filter(function(r){return (r.lv==="risk"||r.lv==="none")&&(!staff||involved(r.t))}).length,b=$("badge");b.hidden=!red;b.textContent=red;
   }
 
   // 工程
   function renderSteps(){
-    var A=compute(),list=tasks.slice().sort(function(a,b){return b.before-a.before});
+    var A=compute(),list=tasks.slice().sort(function(a,b){return b.before-a.before}),ed=me==="lead";
+    $("steps-lock").hidden=ed;$("add-step").hidden=!ed;
     $("steps").innerHTML=list.map(function(t){
       var r=A.res[t.id],p=(120-Math.min(t.before,120))/120*100;
       return "<article class='card step c-"+r.lv+" k-"+(KEY[t.cat]||"other")+"' data-id='"+t.id+"'><div class='h'><span class='kd'></span><b>"+esc(t.name)+"</b><span class='st "+r.lv+"'>"+LABEL[r.lv]+"</span></div>"+
         "<div class='dl-line'><span>締切</span><strong>挙式の"+t.before+"日前（"+fmt(r.dl)+"）</strong></div>"+
-        "<input type='range' min='0' max='120' step='1' value='"+(120-Math.min(t.before,120))+"' data-range='"+t.id+"' style='--p:"+p+"%' aria-label='"+esc(t.name)+"の締切（右へ動かすほど挙式に近い）'>"+
+        "<input type='range' min='0' max='120' step='1' value='"+(120-Math.min(t.before,120))+"' data-range='"+t.id+"' style='--p:"+p+"%' aria-label='"+esc(t.name)+"の締切（右へ動かすほど挙式に近い）'"+(ed?"":" disabled")+">"+
         "<div class='scale'><span>120日前</span><span>60日前</span><span>挙式</span></div>"+
         (r.bad?"<div class='warn'>前の工程より前になっています</div>":"")+
-        "<div class='dl-line'><span>"+esc(names(t.need))+(t.after&&byId(t.after)?" · 「"+esc(byId(t.after).name)+"」の後":"")+"</span><button type='button' class='more' data-edit='"+t.id+"'>詳しく</button></div></article>"}).join("");
+        "<div class='dl-line'><span>"+esc(names(t.need))+(t.after&&byId(t.after)?" · 「"+esc(byId(t.after).name)+"」の後":"")+" · 決める人："+esc(nm(t.owner))+"</span>"+(ed?"<button type='button' class='more' data-edit='"+t.id+"'>詳しく</button>":"")+"</div></article>"}).join("");
   }
 
   // NG日
   var WKS=[1,2,3,4,5,6,0];
   function renderNG(){
+    if(me!=="lead")ngWho=me;$("ng-who").hidden=me!=="lead";
     var n=NG[ngWho];
-    $("ng-who").innerHTML=STAFF.map(function(s){return "<button type='button' class='chip' data-k='"+s.k+"' aria-pressed='"+(s.k===ngWho)+"'>"+s.n+"</button>"}).join("");
+    $("ng-who").innerHTML=STAFF.map(function(s){return "<button type='button' class='chip' data-k='"+s.k+"' aria-pressed='"+(s.k===ngWho)+"'>"+esc(nm(s.k))+"</button>"}).join("");
     $("ng-week").innerHTML=WKS.map(function(w){return "<button type='button' data-w='"+w+"' aria-pressed='"+(!!n.w[w])+"' aria-label='毎週"+WD[w]+"曜'>"+WD[w]+"</button>"}).join("");
     var m=new Date(ngMonth),y=m.getUTCFullYear(),mo=m.getUTCMonth();
     $("ng-month").textContent=y+"年"+(mo+1)+"月";$("ng-prev").disabled=ngMonth<=Date.UTC(2026,10,1);$("ng-next").disabled=ngMonth>=Date.UTC(2027,0,1);
@@ -395,11 +429,12 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
       else h+="<button type='button' data-t='"+t+"' aria-pressed='"+(!!n.d[t])+"' aria-label='"+fmt(t)+"をNGにする'>"+d+"</button>"}
     $("ng-cal").innerHTML=h;
     var A=compute(),mine=A.order.filter(function(t){return t.need.indexOf(ngWho)>=0}).map(function(t){return A.res[t.id]}).sort(function(a,b){return RANK[a.lv]-RANK[b.lv]||a.left-b.left});
-    $("ng-imp-title").textContent=SN[ngWho].n+"が必要な工程";
+    $("ng-imp-title").textContent=(me==="lead"?nm(ngWho)+"が":"あなたが")+"必要な工程";
     $("ng-imp").innerHTML=mine.length?mine.map(function(r){return "<div><span class='st "+r.lv+"'>"+LABEL[r.lv]+"</span><b>"+esc(r.t.name)+"</b><span class='n'>"+(r.lv==="done"?fmt(r.on)+" 決定":"そろう日 "+r.cands.length+"日")+"</span></div>"}).join(""):"<div>必要な工程はありません。</div>";
   }
 
-  function renderAllViews(){renderPlan();renderSteps();renderNG()}
+  function renderAllViews(){renderViewer();renderPlan();renderSteps();renderNG()}
+  document.getElementById("me").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;me=b.dataset.me;scope="mine";renderAllViews();toast(me==="lead"?"責任者として見ています：すべての工程を決められます":nm(me)+"として見ています：自分の出番が先に出ます")})
 
   // 色が変わったものを知らせる
   function snapshot(){var A=compute(),s={};A.order.forEach(function(t){s[t.id]=A.res[t.id].lv});return s}
@@ -434,6 +469,7 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
     var opts="<option value=''>なし</option>"+tasks.filter(function(o){return o.id!==id&&!dependsOn(o.id,id)}).map(function(o){return "<option value='"+o.id+"'"+(t.after===o.id?" selected":"")+">"+esc(o.name)+"</option>"}).join("");
     openSheet("<h3 id='sheet-title'>"+esc(t.name)+"</h3>"+
       "<div class='lbl'>必要な人</div><div class='who' id='e-who'>"+STAFF.map(function(s){return "<button type='button' data-k='"+s.k+"' aria-pressed='"+(t.need.indexOf(s.k)>=0)+"'>"+s.n+"</button>"}).join("")+"</div>"+
+      "<div class='lbl'>決める人（主担当）</div><div class='who' id='e-own'>"+STAFF.map(function(s){return "<button type='button' data-o='"+s.k+"' aria-pressed='"+(t.owner===s.k)+"'>"+esc(nm(s.k))+"</button>"}).join("")+"</div>"+
       "<div class='lbl'>所要時間</div><div class='seg' id='e-dur'>"+DURS.map(function(d){return "<button type='button' data-d='"+d+"' aria-pressed='"+(t.dur===d)+"'>"+d+"</button>"}).join("")+"</div>"+
       "<div class='lbl'>前の工程（これが終わってから）</div><select class='sel' id='e-after' aria-label='前の工程'>"+opts+"</select>"+
       "<div id='e-gapwrap'"+(t.after?"":" hidden")+"><div class='lbl' style='margin-bottom:6px'>前の工程の何日後から</div><div class='stepper'><button type='button' data-gap='-1' aria-label='1日減らす'>−</button><strong id='e-gap'>"+t.gap+"日後から</strong><button type='button' data-gap='1' aria-label='1日増やす'>＋</button></div></div>"+
@@ -457,6 +493,7 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
     if(el.dataset.undo){var b2=snapshot();byId(el.dataset.undo).fixed=null;closeSheet();renderAllViews();var c2=changes(b2);toast("決定を取り消しました"+(c2.length?"。"+c2.join("、"):""));return}
     var id=$("sheet").dataset.id,t2=id&&byId(id);
     if(el.closest("#e-who")&&t2){var k=el.dataset.k,i=t2.need.indexOf(k);if(i>=0)t2.need.splice(i,1);else t2.need.push(k);el.setAttribute("aria-pressed",i<0);renderAllViews();return}
+    if(el.closest("#e-own")&&t2){t2.owner=el.dataset.o;[].forEach.call($("e-own").children,function(b){b.setAttribute("aria-pressed",b===el)});renderAllViews();return}
     if(el.closest("#e-dur")&&t2){t2.dur=el.dataset.d;[].forEach.call($("e-dur").children,function(b){b.setAttribute("aria-pressed",b===el)});renderAllViews();return}
     if(el.dataset.gap&&t2){t2.gap=Math.max(0,Math.min(60,t2.gap+(+el.dataset.gap)));$("e-gap").textContent=t2.gap+"日後から";renderAllViews();return}
     if(el.dataset.remove){tasks=tasks.filter(function(x){return x.id!==el.dataset.remove});tasks.forEach(function(x){if(x.after===el.dataset.remove){x.after="";x.from=x.before+21}});closeSheet();renderAllViews();toast("工程を外しました");return}
@@ -468,13 +505,13 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
   });
   $("sheet").addEventListener("submit",function(e){
     if(e.target.id!=="addf")return;e.preventDefault();var v=$("addn").value.trim();if(!v)return;
-    cN++;tasks.push({id:"c"+cN,cat:"その他",name:v,need:["lead"],dur:"1時間",before:30,after:"",gap:0,fixed:null,from:51});closeSheet();renderAllViews();toast("「"+v+"」を追加しました。「詳しく」から必要な人を選べます");
+    cN++;tasks.push({id:"c"+cN,owner:"lead",cat:"その他",name:v,need:["lead"],dur:"1時間",before:30,after:"",gap:0,fixed:null,from:51});closeSheet();renderAllViews();toast("「"+v+"」を追加しました。「詳しく」から必要な人を選べます");
   });
 
   // 画面ごとの操作
   document.querySelector("main").addEventListener("click",function(e){
     var b=e.target.closest("button");if(!b)return;
-    if(b.dataset.me){me=b.dataset.me;renderPlan();return}
+    if(b.dataset.scope){scope=b.dataset.scope;renderPlan();return}
     if(b.dataset.alt){decideSheet(b.dataset.alt);return}
     if(b.dataset.edit){editSheet(b.dataset.edit);return}
     if(b.id==="add-step"){addSheet();return}
