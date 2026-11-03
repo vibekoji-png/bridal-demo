@@ -72,6 +72,23 @@ p{margin:0}
 .s-risk{color:var(--risk)} .s-mid{color:var(--mid)} .s-safe{color:var(--safe)}
 @media (prefers-reduced-motion:reduce){.track .bar,.track .dl{animation:none}.track .bar{width:72%;border-color:var(--safe);background:var(--safe-soft)}.track .dl{left:78%}}
 
+/* 俯瞰の例 */
+.ov{background:var(--sunk);border-radius:16px;padding:12px 14px 14px;display:flex;flex-direction:column;gap:9px}
+.ov-axis{position:relative;height:16px;margin-left:86px;font-size:11px;font-weight:700;color:var(--muted)}
+.ov-axis span{position:absolute;top:0;white-space:nowrap}
+.ov-row{display:flex;align-items:center;gap:8px}
+.ov-n{width:78px;flex:none;font-size:12.5px;font-weight:700;line-height:1.3}
+.ov-t{position:relative;flex:1;height:22px;background:var(--card);border-radius:7px}
+.ov-b{position:absolute;top:4px;bottom:4px;border-radius:5px;background:var(--c)}
+.ov-w{position:absolute;top:9px;height:4px;background:repeating-linear-gradient(90deg,var(--line) 0 4px,transparent 4px 8px)}
+.ov-me{position:absolute;left:17%;top:50%;transform:translateY(-50%);font-style:normal;font-size:11px;font-weight:700;color:var(--risk);white-space:nowrap;animation:pulse 2.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+@media (prefers-reduced-motion:reduce){.ov-me{animation:none}}
+.why{display:flex;flex-direction:column;gap:10px}
+.why div{display:flex;flex-direction:column;border-left:3px solid var(--accent);padding-left:12px}
+.why b{font-size:16px}
+.why span{font-size:14px;color:var(--muted)}
+
 /* 5. LINE */
 .phone{background:var(--chat);border-radius:20px;padding:14px;display:flex;gap:8px;align-items:flex-end}
 .av{width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:11px;font-weight:700;flex:none}
@@ -94,17 +111,33 @@ footer{text-align:center;font-size:12px;color:var(--muted)}
 
   <section class="card hero">
     <span class="eyebrow">ブライダルチームのための</span>
-    <h1>日程調整は、<br><em>締切</em>から<br>自然に決まる。</h1>
-    <p>いつものLINEのまま。<br>必要な人がそろう日を、色で見せます。</p>
+    <h1>全体が見えると、<br>日程が<br><em>自分ごと</em>になる。</h1>
+    <p>挙式までの流れを、1枚でひと目に。<br>「ここまでに、この人たちで決めよう」が、言わなくても伝わります。</p>
     <a class="cta" href="./">見本を触ってみる →</a>
   </section>
 
   <section class="card">
     <h2>こんなこと、<br>ありませんか？</h2>
     <div class="now">
-      <div><span>🗓</span>別の仕事があって、日が合わない</div>
+      <div><span>🗓</span>本業があって、日が合わない</div>
       <div><span>📣</span>声の大きい人の都合で決まる</div>
       <div><span>😮‍💨</span>まとめ役ばかり大変</div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>見えるから、<br>自分から動ける。</h2>
+    <div class="ov" aria-label="挙式までの工程を俯瞰した例">
+      <div class="ov-axis"><span style="left:0">今日</span><span style="left:100%;transform:translateX(-100%)">挙式</span></div>
+      <div class="ov-row"><span class="ov-n">ドレス試着</span><span class="ov-t"><i class="ov-b" style="left:0;width:14%;--c:var(--risk)"></i><em class="ov-me">あなたの出番</em></span></div>
+      <div class="ov-row"><span class="ov-n">ロケハン</span><span class="ov-t"><i class="ov-b" style="left:0;width:28%;--c:var(--mid)"></i></span></div>
+      <div class="ov-row"><span class="ov-n">リハーサル</span><span class="ov-t"><i class="ov-w" style="left:0;width:24%"></i><i class="ov-b" style="left:24%;width:20%;--c:var(--mid)"></i></span></div>
+      <div class="ov-row"><span class="ov-n">読み合わせ</span><span class="ov-t"><i class="ov-w" style="left:0;width:44%"></i><i class="ov-b" style="left:44%;width:42%;--c:var(--safe)"></i></span></div>
+    </div>
+    <div class="why">
+      <div><b>全体が見える</b><span>挙式までの工程が、1枚に並ぶ</span></div>
+      <div><b>逆算できる</b><span>締切まで、あと何日・何回チャンスがあるか</span></div>
+      <div><b>自分の番が分かる</b><span>「ここは自分が押さえよう」と思える</span></div>
     </div>
   </section>
 
@@ -136,15 +169,15 @@ footer{text-align:center;font-size:12px;color:var(--muted)}
     <h2>届くのは、<br>いつものLINE。</h2>
     <div class="phone">
       <div class="av">進行</div>
-      <div class="bubble"><b>● ドレス試着は急ぎです</b><br>3人がそろうのは 11/18 だけ。<br>仮押さえしました。
+      <div class="bubble"><b>● ドレス試着は急ぎです</b><br>あなたを含む3人がそろうのは<br>11/18 だけ。仮押さえしました。
         <div class="btns"><span>OK</span><span>都合が悪い</span></div></div>
     </div>
-    <p class="muted">催促も決定の連絡も、ボットがします。</p>
+    <p class="muted">急かすのは人ではなく、締切。<br>催促も決定の連絡も、ボットがします。</p>
   </section>
 
   <section class="card final">
-    <h2>まずは、<br>触ってみてください。</h2>
-    <p class="hint"><span class="hand">👆</span>棒を指で動かすと、色が変わります</p>
+    <h2>まずは、全体を<br>眺めてみてください。</h2>
+    <p class="hint"><span class="hand">👆</span>棒を動かすと、余裕の色が変わります</p>
     <a class="cta" href="./">見本を開く →</a>
     <p class="muted">中身はすべて例です。<br>気になったら、30分ほど<br>お話を聞かせてください。</p>
   </section>
