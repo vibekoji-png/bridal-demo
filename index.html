@@ -157,6 +157,27 @@ details.fine[open] summary{margin-bottom:12px}
 .tl-svg path.tmp{stroke:var(--accent);stroke-dasharray:5 4;stroke-width:2}
 @media (max-width:600px){.tl-row{grid-template-columns:1fr}.tl-pad{padding:0 24px}.tl-axis span.m-hide{display:none}}
 
+/* 工程の種類の色（余裕の青・黄・赤とは別の色相） */
+:root{--k-mtg:#7a5aa6;--k-mtg-soft:#efe8f7;--k-dress:#c2577f;--k-dress-soft:#f9e6ee;--k-beauty:#1f8a80;--k-beauty-soft:#dff2ef;--k-photo:#5b6b2b;--k-photo-soft:#eef1dc;--k-day:#8a5f3c;--k-day-soft:#f4ebe2;--k-other:#6c6370;--k-other-soft:#ece8ec}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--k-mtg:#b9a0e6;--k-mtg-soft:#2c2338;--k-dress:#f09ab8;--k-dress-soft:#3a2230;--k-beauty:#7fd3c9;--k-beauty-soft:#183230;--k-photo:#c3d17f;--k-photo-soft:#2a2f1a;--k-day:#e0b48d;--k-day-soft:#33281e;--k-other:#b3aab4;--k-other-soft:#2f2a31}}
+:root[data-theme="dark"]{--k-mtg:#b9a0e6;--k-mtg-soft:#2c2338;--k-dress:#f09ab8;--k-dress-soft:#3a2230;--k-beauty:#7fd3c9;--k-beauty-soft:#183230;--k-photo:#c3d17f;--k-photo-soft:#2a2f1a;--k-day:#e0b48d;--k-day-soft:#33281e;--k-other:#b3aab4;--k-other-soft:#2f2a31}
+.k-mtg{--k:var(--k-mtg);--ks:var(--k-mtg-soft)} .k-dress{--k:var(--k-dress);--ks:var(--k-dress-soft)} .k-beauty{--k:var(--k-beauty);--ks:var(--k-beauty-soft)}
+.k-photo{--k:var(--k-photo);--ks:var(--k-photo-soft)} .k-day{--k:var(--k-day);--ks:var(--k-day-soft)} .k-other{--k:var(--k-other);--ks:var(--k-other-soft)}
+.tl-bar.kc{background:var(--ks);border-color:var(--k);color:var(--k)}
+.tl-bar.kc.bad{background:transparent;border:2px dashed var(--risk);color:var(--risk)}
+.kdot{display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--k);margin-right:6px;vertical-align:0;flex:none}
+.cat-legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--muted);align-items:center}
+.cat-legend span{display:inline-flex;align-items:center}
+.cat-legend .sep{width:1px;height:14px;background:var(--line)}
+.tl-toggle{display:flex;align-items:center;gap:0;width:100%;text-align:left;border:0;background:transparent;padding:2px 0;cursor:pointer;font:inherit;font-size:13.5px;font-weight:700;color:var(--ink);line-height:1.35}
+.tl-toggle .nm{flex:1;min-width:0}
+.tl-toggle .cnt{font-size:11px;font-weight:700;color:var(--muted);background:var(--sunk);border-radius:999px;padding:0 7px;margin-left:6px;white-space:nowrap}
+.tl-toggle .car{font-size:11px;color:var(--muted);margin-left:6px;transition:transform .15s}
+.tl-row.open .tl-toggle .car{transform:rotate(90deg)}
+.tl-row:not(.open) .tl-meta,.tl-row:not(.open) .tl-name small{display:none}
+.tl-row:not(.open) .tl-name small.bad{display:block}
+.tl-row{padding-block:5px}
+
 /* スケジュール表（横棒） */
 .board-head{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
@@ -307,14 +328,12 @@ footer a{color:var(--accent)}
     <div class="step">
       <h3><span class="n">3</span>工程マップで、さわって決める</h3>
       <ul class="howto">
-        <li><b>棒の右端（◯日前）</b>をドラッグ … 締切</li>
+        <li><b>棒の右端</b>をドラッグ … 締切</li>
         <li><b>棒の左端</b>をドラッグ … 始められる日</li>
         <li><b>棒ごと</b>ドラッグ … まとめて移動</li>
-        <li><b>「つなぐ」</b>を別の工程へドラッグ … 順番（矢印）</li>
-        <li><b>顔の丸</b>をタップ … 必要な人</li>
-        <li><b>所要</b>をタップ … 時間の切り替え</li>
+        <li><b>工程名</b>をタップ … 必要な人・所要・つなぐ</li>
       </ul>
-      <p class="muted">棒の色は、この案件での余裕の色です。棒の下の薄い点は「その工程に必要な人が全員空いている日」なので、点が多いところに棒を置くほど青に近づきます。前の工程より前に置くと、赤い点線で知らせます。</p>
+      <div class="cat-legend" aria-label="工程の種類の色"><span class="k-mtg"><span class="kdot"></span>打合せ</span><span class="k-dress"><span class="kdot"></span>衣装</span><span class="k-beauty"><span class="kdot"></span>美容</span><span class="k-photo"><span class="kdot"></span>撮影</span><span class="k-day"><span class="kdot"></span>当日準備</span><span class="k-other"><span class="kdot"></span>追加した工程</span><i class="sep"></i><span>右端の「◯日前」の色＝余裕（青・黄・赤）</span></div>
       <div class="tline" id="tline"></div>
     </div>
     <details class="step fine">
@@ -526,7 +545,7 @@ footer a{color:var(--accent)}
   var CATS=["打合せ","衣装","美容","撮影","当日準備"];
   var tasks=PRESETS.filter(function(p){return p.on}).map(clone);
   var customN=0, sortMode="urgent", scn="normal";
-  function clone(p){return {id:p.id,name:p.name,need:p.need.slice(),dur:p.dur,before:p.before,after:p.after,gap:p.gap,fixed:p.fixed||null,custom:!!p.custom,from:p.after?null:(p.from!=null?p.from:p.before+21)}}
+  function clone(p){return {id:p.id,name:p.name,need:p.need.slice(),dur:p.dur,before:p.before,after:p.after,gap:p.gap,fixed:p.fixed||null,cat:p.cat||"その他",custom:!!p.custom,from:p.after?null:(p.from!=null?p.from:p.before+21)}}
   function byId(id){for(var i=0;i<tasks.length;i++)if(tasks[i].id===id)return tasks[i];return null}
   function dependsOn(a,b,seen){ // a が（たどって）b の後か
     seen=seen||{};var t=byId(a);
@@ -626,6 +645,7 @@ footer a{color:var(--accent)}
   }
 
   // 3. 工程マップ：棒をドラッグして期間・締切・つながりを決める
+  var KEY={"打合せ":"mtg","衣装":"dress","美容":"beauty","撮影":"photo","当日準備":"day"}, openIds={};
   var MAXB=120, drag=null, frozen=null, hoverId=null, INI={lead:"責",pl:"プ",hm:"ヘ",cos:"衣",ph:"フ"};
   var tl=document.getElementById("tline");
   function bx(b){return (MAXB-b)/MAXB*100}
@@ -640,7 +660,8 @@ footer a{color:var(--accent)}
     h+="<span style='left:"+bx(SPAN)+"%;bottom:auto;top:0'><b>今日</b></span></div></div></div>";
     list.forEach(function(t){
       var prev=t.after&&byId(t.after), sb=startB(t), bad=t.before>sb, L=lv[t.id]?lv[t.id].lv:"safe";
-      h+="<div class='tl-row' data-id='"+t.id+"'><div class='tl-name'>"+esc(t.name)+
+      var kk=KEY[t.cat]||"other", isOpen=!!openIds[t.id];
+      h+="<div class='tl-row k-"+kk+(isOpen?" open":"")+"' data-id='"+t.id+"'><div class='tl-name'><button type='button' class='tl-toggle' aria-expanded='"+isOpen+"'><span class='kdot'></span><span class='nm'>"+esc(t.name)+"</span><span class='cnt' title='必要な人の数'>"+t.need.length+"人</span><span class='car'>▸</span></button>"+
         "<small class='"+(bad?"bad":"")+"'>"+(bad?"前の工程より前になっています":fmtw(WED-sb*DAY)+"から "+fmtw(WED-t.before*DAY)+"まで")+"</small>"+
         "<div class='tl-meta'>"+STAFF.map(function(s){return "<button type='button' class='av-t' data-k='"+s.k+"' aria-pressed='"+(t.need.indexOf(s.k)>=0)+"' title='"+s.n+"' aria-label='"+s.n+"'>"+INI[s.k]+"</button>"}).join("")+
         "<button type='button' class='tl-chip' data-dur title='所要時間（タップで切り替え）'>"+t.dur+"</button>"+
@@ -651,7 +672,7 @@ footer a{color:var(--accent)}
       h+="<i class='tl-now' style='left:"+bx(SPAN)+"%'></i>";
       for(var d=TODAY;d<WED;d+=DAY){if(t.need.length&&t.need.every(function(k){return SN[k].ok(d)}))h+="<i class='tl-av' style='left:"+bx(Math.round((WED-d)/DAY))+"%'></i>"}
       var l=bx(Math.max(sb,t.before)),w=Math.abs(bx(t.before)-bx(sb));
-      h+="<div class='tl-bar "+L+(bad?" bad":"")+"' data-id='"+t.id+"' style='left:"+l+"%;width:"+w+"%'><span class='tl-s' title='始められる日'></span></div>";
+      h+="<div class='tl-bar kc"+(bad?" bad":"")+"' data-id='"+t.id+"' style='left:"+l+"%;width:"+w+"%'><span class='tl-s' title='始められる日'></span></div>";
       h+="<button type='button' class='tl-h "+L+"' data-id='"+t.id+"' role='slider' aria-valuemin='0' aria-valuemax='"+MAXB+"' aria-valuenow='"+t.before+"' aria-valuetext='挙式の"+t.before+"日前まで' aria-label='"+esc(t.name)+"の締切' style='left:"+bx(t.before)+"%'>"+t.before+"日前</button>";
       h+="</div></div></div>";
     });
@@ -736,6 +757,7 @@ footer a{color:var(--accent)}
   tl.addEventListener("pointerup",end);tl.addEventListener("pointercancel",end);
   tl.addEventListener("click",function(e){
     var row=e.target.closest(".tl-row[data-id]");if(!row)return;var t=byId(row.dataset.id),hit=false;
+    if(e.target.closest(".tl-toggle")){openIds[t.id]=!openIds[t.id];renderTimeline();return}
     var av=e.target.closest(".av-t");
     if(av){var k=av.dataset.k,i=t.need.indexOf(k);if(i>=0)t.need.splice(i,1);else t.need.push(k);hit=true}
     if(e.target.closest("[data-dur]")){t.dur=DURS[(DURS.indexOf(t.dur)+1)%DURS.length];hit=true}
@@ -795,7 +817,7 @@ footer a{color:var(--accent)}
   document.getElementById("cats").addEventListener("click",function(e){var b=e.target.closest(".chip");if(b)toggle(b.dataset.id)});
   document.getElementById("addform").addEventListener("submit",function(e){
     e.preventDefault();var inp=document.getElementById("addname"),v=inp.value.trim();if(!v)return;
-    customN++;tasks.push({id:"c"+customN,name:v,need:["lead"],dur:"1時間",before:30,after:"",gap:0,fixed:null,custom:true,from:51});
+    customN++;tasks.push({id:"c"+customN,name:v,need:["lead"],dur:"1時間",before:30,after:"",gap:0,fixed:null,cat:"その他",custom:true,from:51});
     inp.value="";all();
   });
   var ed=document.getElementById("editor");
