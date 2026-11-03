@@ -178,6 +178,45 @@ details.fine[open] summary{margin-bottom:12px}
 .tl-row:not(.open) .tl-name small.bad{display:block}
 .tl-row{padding-block:5px}
 
+/* NG日の登録 */
+.ngbox{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:16px}
+.ng-who{display:flex;flex-wrap:wrap;gap:6px}
+.ng-who button{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:5px 14px;font-size:14px;cursor:pointer}
+.ng-who button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg);font-weight:700}
+.ng-who button small{font-size:11px;opacity:.75;margin-left:4px}
+.ng-cols{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:22px;align-items:start}
+@media (max-width:720px){.ng-cols{grid-template-columns:1fr}}
+.ng-left,.ng-right{display:flex;flex-direction:column;gap:10px;min-width:0}
+.ng-step{display:flex;flex-wrap:wrap;gap:2px 10px;align-items:baseline}
+.ng-step b{font-size:14.5px}
+.ng-week{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.ng-week button{border:1.5px solid var(--line);background:var(--bg);border-radius:10px;height:40px;font-size:14px;font-weight:700;cursor:pointer;color:var(--ink)}
+.ng-week button[aria-pressed="true"]{border-color:var(--risk);background:var(--risk-soft);color:var(--risk)}
+.ng-week button[aria-pressed="true"]::after{content:" ×"}
+@media (max-width:520px){.ng-week button[aria-pressed="true"]::after{content:""}}
+.ng-cal{border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--bg)}
+.ng-calhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.ng-calhead b{font-size:14.5px}
+.ng-nav{border:1px solid var(--line);background:var(--surface);border-radius:8px;width:34px;height:30px;cursor:pointer;font-size:16px}
+.ng-nav:disabled{opacity:.3;cursor:default}
+.ng-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;font-variant-numeric:tabular-nums}
+.ng-grid .wd{font-size:11px;color:var(--muted);text-align:center;font-weight:700}
+.ng-grid button,.ng-grid span.cell{height:36px;border-radius:8px;font-size:13px;border:1px solid transparent;background:var(--surface);color:var(--ink);display:grid;place-items:center;padding:0}
+.ng-grid button{cursor:pointer;border-color:var(--line)}
+.ng-grid button[aria-pressed="true"]{background:var(--risk);border-color:var(--risk);color:var(--bg);font-weight:700}
+.ng-grid span.cell.off{background:transparent;color:var(--muted);opacity:.45}
+.ng-grid span.cell.week{background:repeating-linear-gradient(135deg,var(--risk-soft) 0 4px,transparent 4px 8px);color:var(--risk);border-color:var(--risk-soft)}
+.ng-grid span.cell.wed{background:var(--accent);color:var(--bg);font-weight:700}
+.ng-grid span.cell.empty{background:transparent}
+.ng-legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11.5px;color:var(--muted);margin-top:8px}
+.ng-legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:4px}
+.ng-impact{display:flex;flex-direction:column;gap:6px}
+.ng-impact div{display:flex;align-items:center;gap:8px;flex-wrap:wrap;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--bg);font-size:13.5px;transition:background-color .3s}
+.ng-impact div b{flex:1;min-width:0}
+.ng-impact div span.n{font-size:12px;color:var(--muted);white-space:nowrap}
+.ng-impact div.flash{background:var(--accent-soft)}
+.ng-impact p{font-size:13px;color:var(--muted)}
+
 /* スケジュール表（横棒） */
 .board-head{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
@@ -340,6 +379,30 @@ footer a{color:var(--accent)}
       <summary><h3><span class="n">4</span>数字で細かく直す（必要なときだけ）</h3></summary>
       <div class="editor" id="editor"></div>
     </details>
+  </div>
+</section>
+
+<section>
+  <h2><small>最初の設定・各スタッフ</small>NG日の登録（実際に触れます）</h2>
+  <p class="muted">スタッフそれぞれに、LINEで最初に1回だけ「絶対に無理な日」を入れてもらいます。理由は書かなくて大丈夫です。入れると、工程マップの点とスケジュール表の色がその場で変わります。</p>
+  <div class="ngbox">
+    <div class="ng-who" role="group" aria-label="スタッフを選ぶ" id="ng-who"></div>
+    <div class="ng-cols">
+      <div class="ng-left">
+        <div class="ng-step"><b>いつものNG</b><span class="muted">本業の曜日など。タップで切り替え</span></div>
+        <div class="ng-week" id="ng-week" role="group" aria-label="いつものNGの曜日"></div>
+        <div class="ng-step"><b>この日だけのNG</b><span class="muted">旅行・行事・ほかの式など。日付をタップ</span></div>
+        <div class="ng-cal">
+          <div class="ng-calhead"><button type="button" class="ng-nav" id="ng-prev" aria-label="前の月">‹</button><b id="ng-month"></b><button type="button" class="ng-nav" id="ng-next" aria-label="次の月">›</button></div>
+          <div class="ng-grid" id="ng-grid"></div>
+        </div>
+      </div>
+      <div class="ng-right">
+        <div class="ng-step"><b id="ng-impact-title">この人が必要な工程</b><span class="muted">NGを入れると、ここの色が変わります</span></div>
+        <div class="ng-impact" id="ng-impact"></div>
+        <button type="button" class="btn ghost" id="ng-reset">見本の状態に戻す</button>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -515,12 +578,18 @@ footer a{color:var(--accent)}
   function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]})}
   function wd(t){return new Date(t).getUTCDay()}
   // スタッフの空き（本業の都合を曜日で表した見本）
+  // スタッフのNG日（見本の初期値）。w=いつものNG（曜日 0=日）、d=この日だけのNG
+  var NG0={lead:{w:[],d:[[11,22],[12,6]]},pl:{w:[0,1,6],d:[]},hm:{w:[0,4,5,6],d:[]},cos:{w:[1,2,4,5],d:[]},ph:{w:[0,5,6],d:[]}};
+  var NG={};
+  function resetNG(){Object.keys(NG0).forEach(function(k){var w={},dd={};NG0[k].w.forEach(function(x){w[x]=1});NG0[k].d.forEach(function(x){dd[Date.UTC(x[0]>=11?2026:2027,x[0]-1,x[1])]=1});NG[k]={w:w,d:dd}})}
+  resetNG();
+  function okFn(k){return function(t){var n=NG[k];return !n.w[wd(t)]&&!n.d[t]}}
   var STAFF=[
-    {k:"lead",n:"責任者",ok:function(t){var k=fmt(t);return k!=="11/22"&&k!=="12/6"}},
-    {k:"pl",n:"プランナー",ok:function(t){return wd(t)>=2&&wd(t)<=5}},
-    {k:"hm",n:"ヘアメイク",ok:function(t){return wd(t)>=1&&wd(t)<=3}},
-    {k:"cos",n:"衣装",ok:function(t){var w=wd(t);return w===0||w===3||w===6}},
-    {k:"ph",n:"フォト",ok:function(t){return wd(t)>=1&&wd(t)<=4}}
+    {k:"lead",n:"責任者",ok:okFn("lead")},
+    {k:"pl",n:"プランナー",ok:okFn("pl")},
+    {k:"hm",n:"ヘアメイク",ok:okFn("hm")},
+    {k:"cos",n:"衣装",ok:okFn("cos")},
+    {k:"ph",n:"フォト",ok:okFn("ph")}
   ];
   var SN={};STAFF.forEach(function(s){SN[s.k]=s});
   var DURS=["1時間","2時間","3時間","半日","1日"];
@@ -762,7 +831,7 @@ footer a{color:var(--accent)}
     if(av){var k=av.dataset.k,i=t.need.indexOf(k);if(i>=0)t.need.splice(i,1);else t.need.push(k);hit=true}
     if(e.target.closest("[data-dur]")){t.dur=DURS[(DURS.indexOf(t.dur)+1)%DURS.length];hit=true}
     if(e.target.closest("[data-unlink]")){var sb=startB(t);t.after="";t.gap=0;t.from=sb;hit=true}
-    if(hit){renderTimeline();renderEditor();renderBoard()}
+    if(hit){renderTimeline();renderEditor();renderBoard();if(window.__ng)renderNG()}
   });
   tl.addEventListener("keydown",function(e){
     var hd=e.target.closest(".tl-h");if(!hd)return;
@@ -807,7 +876,49 @@ footer a{color:var(--accent)}
     });
     document.getElementById("editor").innerHTML=h||"<p class='muted'>工程を選ぶと、ここに設定が並びます。</p>";
   }
-  function all(){renderCats();renderTimeline();renderEditor();renderBoard()}
+  function all(){renderCats();renderTimeline();renderEditor();renderBoard();renderNG()}
+  // NG日の登録
+  var ngWho="hm", ngMonth=Date.UTC(2026,10,1), lastLv={};
+  var WKS=[1,2,3,4,5,6,0];
+  function renderNG(flash){
+    var n=NG[ngWho];
+    document.getElementById("ng-who").innerHTML=STAFF.map(function(s){
+      var c=Object.keys(NG[s.k].w).length, dd=Object.keys(NG[s.k].d).length;
+      return "<button type='button' data-k='"+s.k+"' aria-pressed='"+(s.k===ngWho)+"'>"+s.n+"<small>"+(c?"毎週"+c+"曜":"")+(c&&dd?"・":"")+(dd?dd+"日":"")+(c||dd?"":"NGなし")+"</small></button>"}).join("");
+    document.getElementById("ng-week").innerHTML=WKS.map(function(w){return "<button type='button' data-w='"+w+"' aria-pressed='"+(!!n.w[w])+"' aria-label='毎週"+WD[w]+"曜'>"+WD[w]+"</button>"}).join("");
+    var m=new Date(ngMonth), y=m.getUTCFullYear(), mo=m.getUTCMonth();
+    document.getElementById("ng-month").textContent=y+"年"+(mo+1)+"月";
+    document.getElementById("ng-prev").disabled=ngMonth<=Date.UTC(2026,10,1);
+    document.getElementById("ng-next").disabled=ngMonth>=Date.UTC(2027,0,1);
+    var h=WKS.map(function(w){return "<span class='wd'>"+WD[w]+"</span>"}).join("");
+    var first=Date.UTC(y,mo,1), lead=(wd(first)+6)%7, days=new Date(Date.UTC(y,mo+1,0)).getUTCDate();
+    for(var i=0;i<lead;i++)h+="<span class='cell empty'></span>";
+    for(var dd=1;dd<=days;dd++){
+      var t=Date.UTC(y,mo,dd);
+      if(t===WED)h+="<span class='cell wed' title='挙式'>式</span>";
+      else if(t<TODAY||t>WED)h+="<span class='cell off'>"+dd+"</span>";
+      else if(n.w[wd(t)])h+="<span class='cell week' title='いつものNG'>"+dd+"</span>";
+      else h+="<button type='button' data-t='"+t+"' aria-pressed='"+(!!n.d[t])+"' aria-label='"+fmt(t)+"をNGにする'>"+dd+"</button>";
+    }
+    document.getElementById("ng-grid").innerHTML=h+"";
+    if(!document.querySelector(".ng-legend"))document.querySelector(".ng-cal").insertAdjacentHTML("beforeend","<div class='ng-legend'><span><i style='background:var(--risk)'></i>この日だけのNG</span><span><i style='background:repeating-linear-gradient(135deg,var(--risk-soft) 0 3px,transparent 3px 6px);border:1px solid var(--risk-soft)'></i>いつものNG</span><span><i style='background:var(--accent)'></i>挙式</span></div>");
+    // 影響
+    var res=compute(null).res, nm=SN[ngWho].n;
+    document.getElementById("ng-impact-title").textContent=nm+"が必要な工程";
+    var mine=tasks.filter(function(t){return t.need.indexOf(ngWho)>=0}).map(function(t){return res[t.id]}).filter(Boolean);
+    mine.sort(function(a,b){return RANK[a.lv]-RANK[b.lv]||a.left-b.left});
+    document.getElementById("ng-impact").innerHTML=mine.length?mine.map(function(r){
+      var ch=flash&&lastLv[r.t.id]&&lastLv[r.t.id]!==r.lv;
+      return "<div class='"+(ch?"flash":"")+"'><span class='st "+r.lv+"'>"+LABEL[r.lv]+"</span><b>"+esc(r.t.name)+"</b><span class='n'>"+(r.lv==="done"?fmtw(r.on)+" 確定":"そろう日 "+r.cands.length+"日")+"</span></div>"}).join(""):"<p>"+nm+"が必要な工程はありません。</p>";
+    lastLv={};Object.keys(res).forEach(function(id){lastLv[id]=res[id].lv});
+  }
+  function ngChanged(){renderTimeline();renderBoard();renderNG(true)}
+  document.getElementById("ng-who").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;ngWho=b.dataset.k;renderNG()});
+  document.getElementById("ng-week").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;var w=+b.dataset.w,n=NG[ngWho];if(n.w[w])delete n.w[w];else n.w[w]=1;ngChanged()});
+  document.getElementById("ng-grid").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;var t=+b.dataset.t,n=NG[ngWho];if(n.d[t])delete n.d[t];else n.d[t]=1;ngChanged()});
+  document.getElementById("ng-prev").addEventListener("click",function(){var m=new Date(ngMonth);ngMonth=Date.UTC(m.getUTCFullYear(),m.getUTCMonth()-1,1);renderNG()});
+  document.getElementById("ng-next").addEventListener("click",function(){var m=new Date(ngMonth);ngMonth=Date.UTC(m.getUTCFullYear(),m.getUTCMonth()+1,1);renderNG()});
+  document.getElementById("ng-reset").addEventListener("click",function(){resetNG();ngChanged()});
   function toggle(id){
     var t=byId(id);
     if(t){tasks=tasks.filter(function(x){return x.id!==id})}
@@ -846,6 +957,7 @@ footer a{color:var(--accent)}
   }
   seg("sort-urgent","sort-order",["urgent","order"],function(v){sortMode=v});
   seg("sc-normal","sc-slip",["normal","slip"],function(v){scn=v});
+  window.__ng=1;
   all();
 })();
 </script>
