@@ -143,9 +143,40 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
 .track .wait{position:absolute;top:6px;height:4px;background:repeating-linear-gradient(90deg,var(--line) 0 4px,transparent 4px 8px)}
 .track .today{position:absolute;left:0;top:-4px;bottom:-4px;width:2px;background:var(--ink);opacity:.4}
 
+/* 日程スライダー */
+.okmark{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--done);margin:0 3px;vertical-align:0}
+.prow{padding:14px 16px 12px;display:flex;flex-direction:column;gap:6px;position:relative;overflow:hidden}
+.prow::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--c)}
+.prow .h{display:flex;align-items:center;gap:8px}
+.prow .h b{flex:1;min-width:0;font-size:16.5px;line-height:1.35}
+.prow .h .lft{font-size:12.5px;color:var(--muted);white-space:nowrap}
+.prow .h .lft strong{color:var(--c);font-size:15px}
+.prow .need{font-size:12.5px;color:var(--muted)}
+.prow .need .me{color:var(--accent);font-weight:700;margin-left:6px}
+.ds{position:relative;padding-top:34px;margin:2px 4px 0}
+.ds .bub{position:absolute;top:0;transform:translateX(-50%);background:var(--ink);color:var(--bg);font-size:13px;font-weight:700;padding:3px 9px;border-radius:8px;white-space:nowrap;pointer-events:none}
+.ds .bub.ng{background:var(--risk)}
+.ds .bub::after{content:"";position:absolute;left:50%;bottom:-5px;margin-left:-5px;border:5px solid transparent;border-bottom:0;border-top-color:inherit}
+.ds .bub.ok-b{background:var(--done)}
+.ds .rail{position:relative;height:14px;border-radius:7px;background:var(--sunk);border:1px solid var(--line)}
+.ds .rail i{position:absolute;top:50%;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:var(--done)}
+.ds .rail i.x{width:3px;height:3px;margin:-1.5px 0 0 -1.5px;background:var(--muted);opacity:.5}
+.ds input[type=range]{position:absolute;left:-16px;right:-16px;width:calc(100% + 32px);top:23px;height:36px;background:transparent}
+.ds input[type=range]::-webkit-slider-runnable-track{background:transparent;border:0;height:36px}
+.ds input[type=range]::-moz-range-track{background:transparent;border:0}
+.ds input[type=range]::-webkit-slider-thumb{width:32px;height:32px;margin-top:2px;background:var(--card);border:4px solid var(--c)}
+.ds input[type=range]::-moz-range-thumb{width:24px;height:24px;background:var(--card);border:4px solid var(--c)}
+.ds.fixed input[type=range]::-webkit-slider-thumb{background:var(--c);border-color:var(--card)}
+.ds.fixed input[type=range]::-moz-range-thumb{background:var(--c);border-color:var(--card)}
+.ds .ends{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-top:14px}
+.prow .msg{font-size:13.5px;font-weight:700}
+.prow .msg.wait{color:var(--muted);font-weight:500}
+.prow .alt{border:2px solid var(--c);background:var(--cs);color:var(--c);border-radius:12px;padding:10px;font-weight:700;font-size:15px}
+.toast button{margin-left:10px;border:0;background:var(--bg);color:var(--ink);border-radius:8px;padding:4px 10px;font-weight:700;font-size:13px}
+
 /* 下のタブ */
 .tabs{position:fixed;left:0;right:0;bottom:0;z-index:8;display:flex;justify-content:center;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
-.tabs nav{display:grid;grid-template-columns:repeat(4,1fr);width:100%;max-width:480px}
+.tabs nav{display:grid;grid-template-columns:repeat(3,1fr);width:100%;max-width:480px}
 .tabs a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 9px;text-decoration:none;color:var(--muted);font-size:11.5px;font-weight:700;position:relative}
 .tabs a svg{width:26px;height:26px}
 .tabs a[aria-current="page"]{color:var(--accent)}
@@ -182,8 +213,8 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
 .txt{flex:1;min-width:0;font:inherit;font-size:16px;padding:12px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--ink)}
 
 /* トースト */
-.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);z-index:30;background:var(--ink);color:var(--bg);border-radius:14px;padding:12px 16px;font-size:14px;font-weight:700;width:min(440px,calc(100% - 32px));opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
-.toast.on{opacity:1;transform:translate(-50%,0)}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);z-index:30;background:var(--ink);color:var(--bg);border-radius:14px;padding:12px 16px;font-size:14px;font-weight:700;width:min(440px,calc(100% - 32px));opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;display:flex;align-items:center;justify-content:space-between}
+.toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 @media (prefers-reduced-motion:reduce){.sheet,.scrim,.toast{transition:none}}
 </style>
 </head>
@@ -196,13 +227,13 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
   </header>
 
   <main>
-    <!-- やること -->
-    <section class="view" id="v-home">
-      <h2>今やること</h2>
+    <!-- 日程 -->
+    <section class="view" id="v-plan">
+      <h2>日程を決める</h2>
+      <p class="sub">つまみを左右にスライドして、離すとその日に決まります。<span class="okmark"></span>の日は必要な人が全員OKです。</p>
       <div class="chips" id="me" role="group" aria-label="見ている人"></div>
       <div class="counts" id="counts"></div>
-      <div class="todo" id="todo"></div>
-      <details class="card done-list" id="done"></details>
+      <div class="todo" id="plan"></div>
     </section>
 
     <!-- 工程 -->
@@ -234,19 +265,12 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
       <button type="button" class="reset" id="ng-reset">見本の状態に戻す</button>
     </section>
 
-    <!-- 全体 -->
-    <section class="view" id="v-all" hidden>
-      <h2>挙式までの全体</h2>
-      <p class="sub">棒は「始められる日〜締切」。丸は決まった日・仮押さえの日です。</p>
-      <div class="card ov" id="ov"></div>
-    </section>
   </main>
 
   <div class="tabs"><nav aria-label="画面の切り替え">
-    <a href="#home" data-tab="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg>やること<span class="badge" id="badge" hidden></span></a>
-    <a href="#steps" data-tab="steps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h10M4 12h14M4 18h8"/><circle cx="17" cy="6" r="2"/><circle cx="20" cy="12" r="2"/><circle cx="15" cy="18" r="2"/></svg>工程</a>
+    <a href="#plan" data-tab="plan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 7h18M3 17h18"/><circle cx="9" cy="7" r="2.6" fill="currentColor"/><circle cx="15" cy="17" r="2.6" fill="currentColor"/></svg>日程<span class="badge" id="badge" hidden></span></a>
     <a href="#ng" data-tab="ng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M10 14l4 4M14 14l-4 4"/></svg>NG日</a>
-    <a href="#all" data-tab="all"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 6h8M7 12h10M11 18h10"/></svg>全体</a>
+    <a href="#steps" data-tab="steps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h10M4 12h14M4 18h8"/><circle cx="17" cy="6" r="2"/><circle cx="20" cy="12" r="2"/><circle cx="15" cy="18" r="2"/></svg>工程</a>
   </nav></div>
 </div>
 
@@ -316,23 +340,28 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
   // 画面の状態
   var me="all", ngWho="hm", ngMonth=Date.UTC(2026,10,1), last={};
 
-  // やること
-  function renderHome(){
+  // 日程：工程の順に並べ、スライドで日を決める
+  function freeDay(t,d){return t.need.every(function(k){return ok(k,d)})}
+  function ngWho2(t,d){return t.need.filter(function(k){return !ok(k,d)}).map(function(k){return SN[k].n})}
+  function win(r){var a=r.start,b=Math.min(r.dl,WED-DAY);if(r.on&&r.on<a)a=r.on;if(r.on&&r.on>b)b=r.on;return {a:a,b:b,n:Math.round((b-a)/DAY)+1}}
+  function renderPlan(){
     var A=compute(),rows=A.order.map(function(t){return A.res[t.id]});
     $("me").innerHTML=[["all","全員"]].concat(STAFF.map(function(s){return [s.k,s.n]})).map(function(x){return "<button type='button' class='chip' data-me='"+x[0]+"' aria-pressed='"+(me===x[0])+"'>"+(x[0]==="all"?"全員":"自分は "+x[1])+"</button>"}).join("");
-    var mine=rows.filter(function(r){return me==="all"||r.t.need.indexOf(me)>=0});
-    var open=mine.filter(function(r){return r.lv!=="done"}).sort(function(a,b){return RANK[a.lv]-RANK[b.lv]||a.left-b.left});
-    var cnt={};open.forEach(function(r){cnt[r.lv]=(cnt[r.lv]||0)+1});
-    $("counts").innerHTML=["none","risk","mid","safe"].filter(function(k){return cnt[k]}).map(function(k){return "<span class='st "+k+"'>"+LABEL[k]+" "+cnt[k]+"</span>"}).join("");
-    $("todo").innerHTML=open.length?open.map(function(r){
-      var t=r.t,why=r.lv==="risk"?"そろうのは "+r.cands.map(fmtw).join("・")+" だけ。"+(r.on?fmtw(r.on)+"で仮押さえ中です。":""):r.lv==="none"?(r.left<0?"締切を過ぎています。":"締切までに全員がそろう日がありません。"):"";
-      return "<article class='card task c-"+r.lv+"'><div class='row1'><span class='st "+r.lv+"'>"+LABEL[r.lv]+"</span>"+(me!=="all"?"<span class='me'>あなたの出番</span>":"")+"</div>"+
-        "<h3>"+esc(t.name)+"</h3><div class='meta'>"+esc(names(t.need))+" · "+t.dur+"</div>"+
-        "<div class='big'><div><strong>"+Math.max(r.left,0)+"日</strong><span>締切まで（"+fmt(r.dl)+"）</span></div><div><strong>"+r.cands.length+"日</strong><span>全員そろう日</span></div></div>"+
-        (why?"<div class='why'>"+why+"</div>":"")+
-        "<button type='button' class='go' data-decide='"+t.id+"'>"+(r.lv==="none"?"代わりの案を見る":"日程を決める")+"</button></article>"}).join(""):"<div class='card empty'>急ぐ工程はありません。</div>";
-    var done=mine.filter(function(r){return r.lv==="done"}).sort(function(a,b){return a.on-b.on});
-    $("done").innerHTML="<summary>決まった予定（"+done.length+"）</summary>"+done.map(function(r){return "<div><b>"+esc(r.t.name)+"</b><span>"+fmtw(r.on)+"</span></div>"}).join("");
+    var mine=rows.filter(function(r){return me==="all"||r.t.need.indexOf(me)>=0}).sort(function(a,b){return a.est-b.est||a.dl-b.dl});
+    var cnt={};mine.forEach(function(r){cnt[r.lv]=(cnt[r.lv]||0)+1});
+    $("counts").innerHTML=["none","risk","mid","safe","done"].filter(function(k){return cnt[k]}).map(function(k){return "<span class='st "+k+"'>"+LABEL[k]+" "+cnt[k]+"</span>"}).join("");
+    $("plan").innerHTML=mine.length?mine.map(function(r){
+      var t=r.t,w=win(r),h="<article class='card prow c-"+r.lv+"' data-id='"+t.id+"'><div class='h'><span class='st "+r.lv+"'>"+LABEL[r.lv]+"</span><b>"+esc(t.name)+"</b>"+
+        (r.lv==="done"?"":"<span class='lft'>締切まで <strong>"+Math.max(r.left,0)+"日</strong></span>")+"</div>"+
+        "<div class='need'>"+esc(names(t.need))+" · "+t.dur+(me!=="all"?"<span class='me'>あなたの出番</span>":"")+"</div>";
+      if(r.dl<r.start&&!r.on||!r.cands.length&&!r.on){
+        h+="<div class='msg' style='color:var(--c)'>"+(r.left<0?"締切を過ぎています":"締切（"+fmtw(r.dl)+"）までに、全員そろう日がありません")+"</div><button type='button' class='alt' data-alt='"+t.id+"'>代わりの案を見る</button></article>";return h}
+      var sel=r.on||r.cands[0],idx=Math.round((sel-w.a)/DAY),pc=w.n>1?idx/(w.n-1)*100:50;
+      h+="<div class='ds"+(r.lv==="done"?" fixed":"")+"'><span class='bub"+(freeDay(t,sel)?(r.lv==="done"?" ok-b":""):" ng")+"' style='left:"+pc+"%'>"+fmtw(sel)+"</span><div class='rail'>";
+      for(var i=0;i<w.n;i++){var d=w.a+i*DAY,x=w.n>1?i/(w.n-1)*100:50;h+="<i class='"+(freeDay(t,d)?"":"x")+"' style='left:"+x+"%'></i>"}
+      h+="</div><input type='range' min='0' max='"+Math.max(w.n-1,0)+"' step='1' value='"+idx+"' data-day='"+t.id+"' data-a='"+w.a+"' aria-label='"+esc(t.name)+"の日程' aria-valuetext='"+fmtw(sel)+"'><div class='ends'><span>"+fmt(w.a)+(w.a===TODAY?"（今日）":"")+"</span><span>締切 "+fmt(Math.min(r.dl,WED-DAY))+"</span></div></div>";
+      h+="<div class='msg"+(r.lv==="done"?"":" wait")+"'>"+(r.lv==="done"?"✓ "+fmtw(r.on)+"に決定（スライドで変更できます）":r.hold?"いまは "+fmtw(r.on)+" で仮押さえ。スライドして決めてください":"全員OKの日は "+r.cands.length+"日。スライドして決めてください")+"</div></article>";
+      return h}).join(""):"<div class='card empty'>この人が必要な工程はありません。</div>";
     var red=rows.filter(function(r){return r.lv==="risk"||r.lv==="none"}).length,b=$("badge");b.hidden=!red;b.textContent=red;
   }
 
@@ -370,27 +399,13 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
     $("ng-imp").innerHTML=mine.length?mine.map(function(r){return "<div><span class='st "+r.lv+"'>"+LABEL[r.lv]+"</span><b>"+esc(r.t.name)+"</b><span class='n'>"+(r.lv==="done"?fmt(r.on)+" 決定":"そろう日 "+r.cands.length+"日")+"</span></div>"}).join(""):"<div>必要な工程はありません。</div>";
   }
 
-  // 全体
-  function pct(t){return Math.max(0,Math.min(100,(t-TODAY)/DAY/(SPAN+1)*100))}
-  function renderAll(){
-    var A=compute(),rows=A.order.map(function(t){return A.res[t.id]}).sort(function(a,b){return a.est-b.est});
-    var h="<div class='axis'><span class='l' style='left:0'>今日</span><span style='left:"+pct(Date.UTC(2026,11,1))+"%'>12月</span><span style='left:"+pct(Date.UTC(2027,0,1))+"%'>1月</span><span class='r' style='left:100%'>挙式</span></div>";
-    rows.forEach(function(r){
-      var e=Math.min(r.dl,WED-DAY)+DAY;
-      h+="<button type='button' class='orow c-"+r.lv+"' data-decide='"+r.t.id+"'><span class='t'><span class='st "+r.lv+"'>"+LABEL[r.lv]+"</span>"+esc(r.t.name)+"<span class='r'>"+(r.on?fmt(r.on):"〜"+fmt(r.dl))+"</span></span><span class='track'><i class='today'></i>"+
-        (r.lv!=="done"&&r.start>TODAY?"<i class='wait' style='left:0;width:"+pct(r.start)+"%'></i>":"")+
-        (r.lv!=="done"&&r.dl>=TODAY?"<i class='w' style='left:"+pct(r.start)+"%;width:"+Math.max(1.5,pct(e)-pct(r.start))+"%'></i>":"")+
-        (r.on?"<i class='p' style='left:"+pct(r.on+DAY/2)+"%'></i>":"")+"</span></button>";
-    });
-    $("ov").innerHTML=h;
-  }
-
-  function renderAllViews(){renderHome();renderSteps();renderNG();renderAll()}
+  function renderAllViews(){renderPlan();renderSteps();renderNG()}
 
   // 色が変わったものを知らせる
   function snapshot(){var A=compute(),s={};A.order.forEach(function(t){s[t.id]=A.res[t.id].lv});return s}
   function changes(before){var A=compute(),out=[];A.order.forEach(function(t){var a=before[t.id],b=A.res[t.id].lv;if(a&&a!==b&&b!=="done")out.push("「"+t.name+"」が"+LABEL[a]+"→"+LABEL[b])});return out}
-  var tt;function toast(msg){var el=$("toast");el.textContent=msg;el.classList.add("on");clearTimeout(tt);tt=setTimeout(function(){el.classList.remove("on")},3200)}
+  var tt,undoFn=null;function toast(msg,undo){var el=$("toast");undoFn=undo||null;el.innerHTML="<span>"+esc(msg)+"</span>"+(undo?"<button type='button' id='undo'>元に戻す</button>":"");el.classList.add("on");clearTimeout(tt);tt=setTimeout(function(){el.classList.remove("on")},undo?5000:3200)}
+  document.getElementById("toast").addEventListener("click",function(e){if(e.target.id==="undo"&&undoFn){undoFn();undoFn=null;$("toast").classList.remove("on")}});
 
   // シート
   var lastFocus=null;
@@ -459,8 +474,8 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
   // 画面ごとの操作
   document.querySelector("main").addEventListener("click",function(e){
     var b=e.target.closest("button");if(!b)return;
-    if(b.dataset.me){me=b.dataset.me;renderHome();return}
-    if(b.dataset.decide){decideSheet(b.dataset.decide);return}
+    if(b.dataset.me){me=b.dataset.me;renderPlan();return}
+    if(b.dataset.alt){decideSheet(b.dataset.alt);return}
     if(b.dataset.edit){editSheet(b.dataset.edit);return}
     if(b.id==="add-step"){addSheet();return}
     if(b.closest("#ng-who")){ngWho=b.dataset.k;renderNG();return}
@@ -468,6 +483,20 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
     if(b.closest("#ng-cal")){var bf=snapshot(),t=+b.dataset.t,m=NG[ngWho];if(m.d[t])delete m.d[t];else m.d[t]=1;renderAllViews();var c3=changes(bf);if(c3.length)toast(c3.join("、"));return}
     if(b.id==="ng-prev"||b.id==="ng-next"){var x=new Date(ngMonth);ngMonth=Date.UTC(x.getUTCFullYear(),x.getUTCMonth()+(b.id==="ng-next"?1:-1),1);renderNG();return}
     if(b.id==="ng-reset"){resetNG();renderAllViews();toast("NG日を見本の状態に戻しました");return}
+  });
+  // 日程のつまみ：動かしている間は吹き出しだけ更新、離したらその日に決める（全員OKでなければ近いOKの日へ）
+  function dayOf(el){return +el.dataset.a+(+el.value)*DAY}
+  document.querySelector("main").addEventListener("input",function(e){
+    var id=e.target.dataset.day;if(!id)return;var t=byId(id),d=dayOf(e.target),card=e.target.closest(".prow"),bub=card.querySelector(".bub"),mx=+e.target.max||1;
+    var ng=ngWho2(t,d);bub.textContent=fmtw(d)+(ng.length?" ×"+ng.join("・"):" 全員OK");bub.className="bub"+(ng.length?" ng":" ok-b");bub.style.left=(mx?(+e.target.value)/mx*100:50)+"%";
+  });
+  document.querySelector("main").addEventListener("change",function(e){
+    var id=e.target.dataset.day;if(!id)return;var t=byId(id),d=dayOf(e.target),prev=t.fixed,before=snapshot(),snapped=false;
+    if(!freeDay(t,d)){var a=+e.target.dataset.a,b=a+(+e.target.max)*DAY,best=null;
+      for(var k=1;k<=+e.target.max+1;k++){var c1=d-k*DAY,c2=d+k*DAY;if(c2<=b&&freeDay(t,c2)){best=c2;break}if(c1>=a&&freeDay(t,c1)){best=c1;break}}
+      if(best==null){renderPlan();toast("全員そろう日がありません");return}d=best;snapped=true}
+    t.fixed=d;var y=window.scrollY;renderAllViews();window.scrollTo(0,y);var ch=changes(before);
+    toast((snapped?"全員OKの ":"")+t.name+"を"+fmtw(d)+"に決めました"+(ch.length?"。"+ch.join("、"):""),function(){t.fixed=prev;var y2=window.scrollY;renderAllViews();window.scrollTo(0,y2)});
   });
   // 締切のつまみ：動かしている間はその行だけ更新し、離したら全体を更新
   var rangeBefore=null;
@@ -482,13 +511,13 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
   });
   document.querySelector("main").addEventListener("change",function(e){
     if(!e.target.dataset.range)return;var b=rangeBefore||snapshot();rangeBefore=null;
-    var y=window.scrollY;renderHome();renderNG();renderAll();renderSteps();window.scrollTo(0,y);
+    var y=window.scrollY;renderAllViews();window.scrollTo(0,y);
     var c=changes(b);if(c.length)toast(c.join("、"));
   });
 
-  // タブ（#home / #steps / #ng / #all）
-  var TABS=["home","steps","ng","all"];
-  function route(){var h=location.hash.replace("#","");if(TABS.indexOf(h)<0)h="home";
+  // タブ（#plan / #ng / #steps）
+  var TABS=["plan","ng","steps"];
+  function route(){var h=location.hash.replace("#","");if(TABS.indexOf(h)<0)h="plan";
     TABS.forEach(function(k){$("v-"+k).hidden=k!==h});
     [].forEach.call(document.querySelectorAll(".tabs a"),function(a){if(a.dataset.tab===h)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")});
     hideToast();closeSheet();window.scrollTo(0,0)}
