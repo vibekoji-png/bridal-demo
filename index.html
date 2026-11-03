@@ -375,7 +375,7 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
   function renderPlan(){
     var A=compute(),rows=A.order.map(function(t){return A.res[t.id]});
     var staff=me!=="lead",sc=$("scope");sc.hidden=!staff;
-    sc.innerHTML="<button type='button' data-scope='mine' aria-pressed='"+(scope==="mine")+"'>自分の出番</button><button type='button' data-scope='all' aria-pressed='"+(scope==="all")+"'>全体</button>";
+    sc.innerHTML="<button type='button' data-scope='mine' aria-pressed='"+(scope==="mine")+"'>自分のタスク</button><button type='button' data-scope='all' aria-pressed='"+(scope==="all")+"'>全体</button>";
     function involved(t){return t.need.indexOf(me)>=0||t.owner===me}
     var mine=rows.filter(function(r){return !staff||scope==="all"||involved(r.t)}).sort(function(a,b){return a.est-b.est||a.dl-b.dl});
     var cnt={};mine.forEach(function(r){cnt[r.lv]=(cnt[r.lv]||0)+1});
@@ -393,7 +393,7 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
       h+="</div><input type='range' min='0' max='"+Math.max(w.n-1,0)+"' step='1' value='"+idx+"' data-day='"+t.id+"' data-a='"+w.a+"' aria-label='"+esc(t.name)+"の日程' aria-valuetext='"+fmtw(sel)+"'"+(cd?"":" disabled")+"><div class='ends'><span>"+fmt(w.a)+(w.a===TODAY?"（今日）":"")+"</span><span>締切 "+fmt(Math.min(r.dl,WED-DAY))+"</span></div></div>";
       var tail=cd?(r.lv==="done"?"（スライドで変更できます）":"スライドして決めてください"):(r.lv==="done"?"":"決めるのは"+nm(t.owner)+"です");
       h+="<div class='msg"+(r.lv==="done"?"":" wait")+"'>"+(r.lv==="done"?"✓ "+fmtw(r.on)+"に決定"+tail:(r.hold?"いまは "+fmtw(r.on)+" で仮押さえ。":"全員OKの日は "+r.cands.length+"日。")+tail)+(!cd&&mineT&&t.need.indexOf(me)>=0?"<br><span style='font-weight:500'>都合の悪い日は「NG日」に入れてください</span>":"")+"</div></article>";
-      return h}).join(""):"<div class='card empty'>あなたの出番の工程はありません。「全体」で全部見られます。</div>";
+      return h}).join(""):"<div class='card empty'>あなたのタスクはありません。「全体」で全部見られます。</div>";
     var red=rows.filter(function(r){return (r.lv==="risk"||r.lv==="none")&&(!staff||involved(r.t))}).length,b=$("badge");b.hidden=!red;b.textContent=red;
   }
 
@@ -434,7 +434,7 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;bac
   }
 
   function renderAllViews(){renderViewer();renderPlan();renderSteps();renderNG()}
-  document.getElementById("me").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;me=b.dataset.me;scope="mine";renderAllViews();toast(me==="lead"?"責任者として見ています：すべての工程を決められます":nm(me)+"として見ています：自分の出番が先に出ます")})
+  document.getElementById("me").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;me=b.dataset.me;scope="mine";renderAllViews();toast(me==="lead"?"責任者として見ています：すべての工程を決められます":nm(me)+"として見ています：自分のタスクが先に出ます")})
 
   // 色が変わったものを知らせる
   function snapshot(){var A=compute(),s={};A.order.forEach(function(t){s[t.id]=A.res[t.id].lv});return s}
